@@ -1,0 +1,9 @@
+body, html{
+    line-height: 1;
+    font-family: 'PingFang SC', 'STHeitiSC-Light', 'Helvetica-Light', arial, sans-serif, 'Droid Sans Fallback';
+    user-select: none;
+    /* 去掉移动端点击事件高亮 */
+    -webkit-tap-highlight-color: transparent;
+    background: #00000000;
+    color: #333;
+}
