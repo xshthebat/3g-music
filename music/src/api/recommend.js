@@ -1,5 +1,6 @@
 import jsonp from '../common/js/jsonp'
 import { commonParams, options } from '../api/config'
+const debug = process.env.NODE_ENV !== 'production'
 export function getRecommend() {
     const url = 'https://shc.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg';
     const data = Object.assign({}, commonParams, {
@@ -9,7 +10,7 @@ export function getRecommend() {
     return jsonp(url, data, options);
 }
 export function getDiscList() {
-    const url = 'http://localhost:8888/getlist';
+    const url = debug ? 'http://localhost:8888/getlist' : 'http://123.207.138.78:8888/getlist';
     const data = Object.assign({}, commonParams, {
         g_tk: '5381',
         platform: 'yqq',

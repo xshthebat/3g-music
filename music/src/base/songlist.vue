@@ -1,13 +1,13 @@
 <template>
   <div class="song-list">
       <ul>
-          <li v-for="(song,index) in songs" class="songitem">
+          <li v-for="(song,index) in songs" class="songitem" @click="selectItem(song,index)">
             <!-- <div class="rank" v-if="rank">
-                <span :class="getRankCls(index)">{{getRankText(index)}}</span>
+                <span :class="getRankCls(index)">{{getRankText(index)}}</span> //rank排名待写
             </div> -->
              <div class="content">
                  <h2 class="songname">{{song.name}}</h2>
-                 <p class="desc">{{getDesc(song)}}</p>
+                 <p class="songdesc">{{getDesc(song)}}</p>
             </div>
           </li>
       </ul>
@@ -27,10 +27,14 @@ export default {
   },
   created(){
       console.log(this.songs);
+      console.log(this.rank);
   },
   methods: {
     getDesc(song) {
       return `${song.singer} - ${song.album}`;
+    },
+    selectItem(song,index){
+      this.$emit('select',song,index);
     }
   }
 };
@@ -57,8 +61,8 @@ export default {
 .songname{
     color:#000;
 }
-.desc{
+.songdesc{
     margin-top: 4px;
-    color: rgba(255, 255, 255, 0.3);
+    color: #008000a8;
 }
 </style>

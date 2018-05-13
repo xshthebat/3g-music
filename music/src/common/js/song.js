@@ -1,3 +1,8 @@
+import { ERR_OK } from "../../api/config";
+import { getLyric, getVKey } from "../../api/song"
+import { Base64 } from "js-base64";
+import { getUid } from '../../common/js/uid';
+let urlMap = {}; //url集合
 export default class Song {
     constructor({ id, mid, singer, name, album, duration, image }) {
         this.id = id;
@@ -7,6 +12,43 @@ export default class Song {
         this.album = album;
         this.duration = duration;
         this.image = image;
+        this.filename = `C400${this.mid}.m4a`;
+
+        //
+        if (urlMap[this.id]) {
+            this.url = urlMap[this.id]
+        } else {
+            this._genUrl()
+        }
+    }
+    getlyric() {
+        if (this.lyric) {
+            return Promise.resolve(this.lyric);
+            //直接返回lyric;
+        }
+        return new Promise((resolve, reject) => {
+            getLyric(this.mid).then(res => {
+                if (res.retcode === ERR_OK) {
+                    this.lyric = Base64.decode(res.lyric);
+                    // console.log(this.lyric);
+                    resolve(this.lyric);
+                } else {
+                    reject('no lyric')
+                }
+            })
+        })
+    }
+    _genUrl() {
+        if (this.url) {
+            return; //有url 直接返回
+        }
+        getVKey(this.mid, this.filename).then((res) => {
+            if (res.code === ERR_OK) {
+                const vkey = res.data.items[0].vkey
+                this.url = `http://dl.stream.qqmusic.qq.com/${this.filename}?vkey=${vkey}&guid=${getUid()}&uin=0&fromtag=66`;
+                urlMap[this.id] = this.url;
+            }
+        })
     }
 }
 export function createSong(musicDate) {
