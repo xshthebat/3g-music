@@ -11,8 +11,9 @@ export const playlistMixin = {
         }
     },
     mounted() {
-        // console.log(this.playlist);
-        this.handlePlaylist(this.playlist);
+        this.$nextTick(() => {
+            this.handlePlaylist(this.playlist);
+        })
     },
     activated() {
         this.handlePlaylist(this.playlist);

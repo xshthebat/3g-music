@@ -62,9 +62,9 @@ export default {
   },
   methods: {
     handlePlaylist (playlist) {
-        const _bottom = playlist.length > 0 ? '60px' : ''
-        this.$refs.list.$el.style.bottom = _bottom
-        this.$refs.list.refresh()
+        const _bottom = playlist.length > 0 ? '60px' : '';
+        this.$refs.list.$el.style.bottom = _bottom;
+        this.$refs.list.refresh();
     },
     back() {
       this.$router.back();

@@ -230,7 +230,7 @@ export default {
   padding-left: 20px;
   font-size: 12px;
   color: #333;
-  background-color: #7dfdd24a;
+  background-color: #7dfdd2;
 }
 .loading-container{
    position: absolute;

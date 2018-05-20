@@ -1,13 +1,13 @@
 <template>
   <div class="player" v-show="playlist.length>0">
-    <transition name="normal">
+    <transition name="normal" @enter="enter" @leave="leave">
       <div class="normal-player" v-show="fullScreen">
           <!-- 背景 -->
           <div class="background">
               <img :src="currentSong.image" width="100%" height="100%">
           </div>
           <!-- top -->
-          <div class="player-top">
+          <div class="player-top" ref="top">
               <div class="player-back" @click="back">
                   <i class="player-icon-back"></i>
               </div>
@@ -15,15 +15,17 @@
               <h2 class="subtitle" v-html="currentSong.singer"></h2>
           </div>
           <!-- middle -->
-          <div class="player-middle">
-              <!-- <div class="middle-l" ref="middleL">
+          <div class="player-middle" @touchstart.prevent="middleTouchStart"
+             @touchmove.prevent="middleTouchMove"
+             @touchend="middleTouchEnd">
+              <div class="middle-l" ref="middleL">
                   <div class="cd-wrapper" ref="cdWrapper">
                       <div class="cd" :class="cdCls">
                           <img :src="currentSong.image" class="cdimage">
                       </div>
                   </div>
-              </div> -->
-              <scroll class="middle-r" ref="lyricList" :data="currentLyric&&currentLyric.lines">
+              </div>
+              <scroll class="middle-r" ref="lyricList" :listenScroll="true" :data="currentLyric&&currentLyric.lines">
               <div class="lyric-wrapper">
                   <div v-if="currentLyric" @click="clicklyric">
                       <p ref="lyricLine" class="lytext" v-for="(line,index) of currentLyric.lines" :class="{'lycurrent': currentLineNum === index}">{{ line.txt }}</p>
@@ -32,7 +34,7 @@
               </scroll>
           </div>
           <!-- bottom -->
-          <div class="player-bottom">
+          <div class="player-bottom" ref="bottom">
               <div class="dot-wrapper">
                 <span class="dot" :class="{'active': currentShow === 'cd'}"></span>
                 <span class="dot" :class="{'active': currentShow === 'lyric'}"></span>
@@ -69,6 +71,28 @@
           </div>
       </div>
     </transition >
+    <!-- mini播放器 -->
+    <div>
+     <div class="mini-player" v-show="!fullScreen" @click="open">
+      <div class="minicon" >
+          <img class="minicd" :src="currentSong.image" :class="cdCls" width="40" height="40">
+      </div>
+      <div class="minitext">
+          <h2 class="minname" v-html="currentSong.name"></h2>
+          <p class="mindesc" v-html="currentSong.singer"></p>
+      </div>
+      <div class="procontrol">
+        <progresscirle :radius="radius" :percent="percent">
+          <i @click.stop.prevent="togglePlaying" class="icon-mini" :class="miniIcon"></i>
+        </progresscirle>
+      </div>
+     <div class="listcontrol" @click.stop.prevent="showPlaylist">
+        <i class="icon-list"></i>
+     </div>
+     </div>
+    </div>
+    <!-- 播放列表 -->
+    <playlist ref="playlistref"></playlist>
          <!--播放器内核-->
     <audio ref="audio" :src="currentSong.url" @playing="ready" @pause="paused" @error="error" @ended="ended" @timeupdate="updateTime"></audio>
   </div>
@@ -76,10 +100,12 @@
 <script>
 import scroll from "../base/scroll";
 import progressbar from "../base/progressbar";
+import progresscirle from "../base/progresscircle";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import { playMode } from "../common/js/config";
 import { shuffle } from "../common/js/util";
 import Lyric from "lyric-parser";
+import playlist from "../components/playlist";
 export default {
   data() {
     return {
@@ -91,6 +117,9 @@ export default {
       currentShow: "cd", //展示界面默认 cd
       prrgresschanging: false //进度条正在改变标志
     };
+  },
+  created() {
+    this.touch = {};
   },
   computed: {
     cdCls() {
@@ -109,6 +138,9 @@ export default {
     likeIcon() {
       return this._likesong() ? "icon-like" : "icon-unlike";
     },
+    miniIcon() {
+      return this.playing ? "minpuase" : "minplay";
+    },
     percent() {
       return this.currentTime / this.currentSong.duration;
     },
@@ -124,6 +156,97 @@ export default {
     ])
   },
   methods: {
+    enter() {
+      console.log(this.$refs);
+      this.$refs.top.style["transition"] =
+        "all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32)";
+      this.$refs.bottom.style["transition"] =
+        "all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32)";
+      this.$refs.top.style["transform"] = "translate3d(0, 0, 0)";
+      this.$refs.bottom.style["transform"] = "translate3d(0, 0, 0)";
+    },
+    leave() {
+      this.$refs.top.style["transform"] = "translate3d(0, -100px, 0)";
+      this.$refs.bottom.style["transform"] = "translate3d(0, 100px, 0)";
+    },
+    middleTouchStart(e) {
+      this.touch.initiated = true;
+      this.touch.move = false;
+      const touch = e.touches[0];
+      this.touch.startX = touch.pageX;
+      this.touch.startY = touch.pageY;
+    },
+    middleTouchMove(e) {
+      if (!this.touch.initiated) {
+        return;
+      }
+      const touch = e.touches[0];
+      const deltaX = (this.deltaX = touch.pageX - this.touch.startX);
+      const deltaY = (this.deltaY = touch.pageY - this.touch.startY);
+
+      //计算触摸距离
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        //去除横向
+        return;
+      }
+      console.log("进入");
+      if (!this.touch.moved) {
+        this.touch.moved = true;
+      }
+      const left = this.currentShow === "cd" ? 0 : -window.innerWidth;
+      const offsetWidth = Math.min(
+        0,
+        Math.max(-window.innerWidth, left + deltaX)
+      );
+      this.touch.percent = Math.abs(offsetWidth / window.innerWidth);
+      this.$refs.lyricList.$el.style[
+        "transform"
+      ] = `translate3d(${offsetWidth}px,0,0)`;
+      this.$refs.lyricList.$el.style["transitionDuration"] = 0;
+      this.$refs.middleL.style.opacity = 1 - this.touch.percent;
+      this.$refs.middleL.style["transitionDuration"] = 0;
+    },
+    middleTouchEnd(e) {
+      if (!this.touch.moved) {
+        return;
+      }
+      let offsetWidth;
+      let opacity;
+      let ifsroll =
+        Math.abs(this.deltaY) < Math.abs(this.deltaX) ? true : false;
+      if (this.currentShow === "cd") {
+        if (this.touch.percent > 0.1 && ifsroll) {
+          //判断是否横向滑动，并且超出一定范围
+          //直接设置值
+          offsetWidth = -window.innerWidth;
+          opacity = 0;
+          this.currentShow = "lyric";
+        } else {
+          //否则不变
+          offsetWidth = 0;
+          opacity = 1;
+        }
+      } else {
+        if (this.touch.percent < 0.9 && ifsroll) {
+          //同上
+          offsetWidth = 0;
+          this.currentShow = "cd";
+          opacity = 1;
+        } else {
+          offsetWidth = -window.innerWidth;
+          opacity = 0;
+        }
+      }
+      const time = 300;
+      //设置动画过度
+      this.$refs.lyricList.$el.style[
+        "transform"
+      ] = `translate3d(${offsetWidth}px,0,0)`;
+      this.$refs.lyricList.$el.style["transitionDuration"] = `${time}ms`;
+      this.$refs.middleL.style.opacity = opacity;
+      this.$refs.middleL.style["transitionDuration"] = `${time}ms`;
+      this.touch.initiated = false;
+    },
     getLyric() {
       this.currentSong
         .getlyric()
@@ -163,14 +286,19 @@ export default {
         return;
       }
       this.currentLineNum = lineNum;
-      if (lineNum > 5) {
-        let lineEl = this.$refs.lyricLine[lineNum - 5];
-        this.$refs.lyricList.scrollToElement(lineEl, 1000);
-      } else {
-        let lineEl = this.$refs.lyricLine[0];
-        this.$refs.lyricList.scrollTo(lineEl, 1000);
-      }
-      this.playingLyric = txt;
+      this.$nextTick(() => {
+        if (lineNum > 5) {
+          let lineEl = this.$refs.lyricLine[lineNum - 5];
+          this.$refs.lyricList.scrollToElement(lineEl, 1000);
+        } else {
+          let lineEl = this.$refs.lyricLine[0];
+          this.$refs.lyricList.scrollTo(lineEl, 1000);
+        }
+        this.playingLyric = txt;
+      });
+    },
+    open() {
+      this.setFullScreen(true);
     },
     back() {
       //显示彻底清除 实际并不是返回而是最小化
@@ -344,9 +472,14 @@ export default {
       lyric.forEach(item => {
         if (text === item.txt) {
           console.log(item.time, this.currentSong.duration);
-          this.onProgressBarChange(item.time/1000 / this.currentSong.duration);
+          this.onProgressBarChange(
+            item.time / 1000 / this.currentSong.duration
+          );
         }
       });
+    },
+    showPlaylist() {
+      this.$refs.playlistref.show();
     },
     ...mapMutations({
       setFullScreen: "SET_FULL_SCREEN",
@@ -363,7 +496,9 @@ export default {
   },
   components: {
     scroll,
-    progressbar
+    progressbar,
+    progresscirle,
+    playlist
   },
   watch: {
     currentSong(newsong, oldsong) {
@@ -420,6 +555,8 @@ export default {
           //清除歌词列表
           console.log("清除列表，初始当前歌曲进度条百分比");
           //播放条设置当前歌曲百分比
+          this.$refs.lyricList.refresh();
+          this.$refs.progressBar.setProgressOffest(this.percent);
         });
       }
     }
@@ -669,6 +806,14 @@ export default {
   color: aquamarine;
   font-size: 20px;
 }
+.normal-enter-active,
+.normal-leave-active {
+  transition: all 0.4s;
+}
+.normal-enter,
+.normal-leave-to {
+  opacity: 0;
+}
 @keyframes rotate {
   0% {
     transform: rotate(0);
@@ -676,5 +821,72 @@ export default {
   100% {
     transform: rotate(360deg);
   }
+}
+.minicon {
+  flex: 1;
+  margin-left: 15px;
+}
+.minicd {
+  border-radius: 50%;
+  border: 1px solid #31c27ca6;
+}
+.mini-player {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  width: 100%;
+  height: 60px;
+  background: #f5f5f5;
+}
+.minitext {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  line-height: 20px;
+  overflow: hidden;
+  position: absolute;
+  left: 75px;
+}
+.minname {
+  margin-bottom: 2px;
+  font-size: 14px;
+  color: #000;
+}
+.mindesc {
+  font-size: 10px;
+  color: #008000a8;
+}
+.minicontrol,
+.procontrol,
+.listcontrol {
+  flex: 0 0 30px;
+  width: 30px;
+  padding: 0 10px;
+}
+.icon-mini {
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  left: 5px;
+  top: 4px;
+}
+.minpuase {
+  background-image: url(../common/image/minipause.svg);
+}
+.minplay {
+  background-image: url(../common/image/miniplay.svg);
+}
+.listcontrol {
+  height: 30px;
+}
+.icon-list {
+  width: 32px;
+  height: 32px;
+  background-image: url(../common/image/minilist.svg);
+  position: absolute;
 }
 </style>

@@ -10,8 +10,9 @@ import { ERR_OK } from "../api/config";
 import Singer from "../common/js/Singer";
 import listview from "../base/listview";
 import {mapMutations} from 'vuex';
-
+import { playlistMixin } from '../common/js/mixin';
 export default {
+  mixins:[playlistMixin],
   data() {
     return {
       singers: []
@@ -21,6 +22,15 @@ export default {
     this._getSingerList();
   },
   methods: {
+    handlePlaylist (playlist) {
+        const bottom = playlist.length > 0 ? '60px' : ''
+        this.$refs.singer.style.bottom = bottom;
+        this.$nextTick(() => {
+           if(this.$refs.list){
+             this.$refs.list.refresh();
+           }
+        });
+    },
     selectSinger(singer){
       this.$router.push({
           path: `/singer/${singer.id}`
