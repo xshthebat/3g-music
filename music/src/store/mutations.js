@@ -29,6 +29,9 @@ const mutations = {
         if (index !== -1 && index < state.likelist.length) {
             state.likelist.splice(index, 1);
         }
+    },
+    [types.SET_SEARCHHISTORY](state, searchHistory) {
+        state.searchHistory = searchHistory;
     }
 }
 

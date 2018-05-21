@@ -13,3 +13,16 @@ export function shuffle(list) {
 function getrandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+//截流 fn函数 delay时间
+export function debounce(fn, delay) {
+    let timer = null;
+    return function(...args) {
+        if (timer) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+            fn.apply(this, args)
+        }, delay)
+    }
+}

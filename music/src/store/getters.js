@@ -9,3 +9,4 @@ export const currentSong = state => {
     return state.playlist[state.currentIndex] || {};
 }
 export const likelist = state => state.likelist;
+export const searchHistory = state => state.searchHistory;

@@ -1,13 +1,13 @@
 <template>
   <div class="player" v-show="playlist.length>0">
-    <transition name="normal" @enter="enter" @leave="leave">
+    <transition name="normal" @enter="Enter" @after-enter="afterEnter" @leave="Leave" @after-leave="afterLeave">
       <div class="normal-player" v-show="fullScreen">
           <!-- 背景 -->
           <div class="background">
               <img :src="currentSong.image" width="100%" height="100%">
           </div>
           <!-- top -->
-          <div class="player-top" ref="top">
+          <div class="player-top" ref="top" :class="{'top-enter':isenter,'top-leave':!isenter}">
               <div class="player-back" @click="back">
                   <i class="player-icon-back"></i>
               </div>
@@ -34,7 +34,7 @@
               </scroll>
           </div>
           <!-- bottom -->
-          <div class="player-bottom" ref="bottom">
+          <div class="player-bottom" ref="bottom" :class="{'bottom-enter':isenter,'bottom-leave':!isenter}">
               <div class="dot-wrapper">
                 <span class="dot" :class="{'active': currentShow === 'cd'}"></span>
                 <span class="dot" :class="{'active': currentShow === 'lyric'}"></span>
@@ -72,7 +72,7 @@
       </div>
     </transition >
     <!-- mini播放器 -->
-    <div>
+    <transition name="mini">
      <div class="mini-player" v-show="!fullScreen" @click="open">
       <div class="minicon" >
           <img class="minicd" :src="currentSong.image" :class="cdCls" width="40" height="40">
@@ -90,7 +90,7 @@
         <i class="icon-list"></i>
      </div>
      </div>
-    </div>
+    </transition>
     <!-- 播放列表 -->
     <playlist ref="playlistref"></playlist>
          <!--播放器内核-->
@@ -99,6 +99,7 @@
 </template>
 <script>
 import scroll from "../base/scroll";
+import animations from 'create-keyframe-animation'; //动画库
 import progressbar from "../base/progressbar";
 import progresscirle from "../base/progresscircle";
 import { mapGetters, mapMutations, mapActions } from "vuex";
@@ -115,13 +116,17 @@ export default {
       currentLyric: null, //歌词
       currentLineNum: 0, //歌词行数
       currentShow: "cd", //展示界面默认 cd
-      prrgresschanging: false //进度条正在改变标志
+      prrgresschanging: false, //进度条正在改变标志
+      entering:false //进入标志
     };
   },
   created() {
     this.touch = {};
   },
   computed: {
+    isenter(){
+      return this.entering ?true:false;
+    },
     cdCls() {
       return this.playing ? "cdplay" : "cdplay pause";
     },
@@ -156,18 +161,63 @@ export default {
     ])
   },
   methods: {
-    enter() {
-      console.log(this.$refs);
-      this.$refs.top.style["transition"] =
-        "all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32)";
-      this.$refs.bottom.style["transition"] =
-        "all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32)";
-      this.$refs.top.style["transform"] = "translate3d(0, 0, 0)";
-      this.$refs.bottom.style["transform"] = "translate3d(0, 0, 0)";
+    Enter(el,done){
+      setTimeout(()=>{
+        this.entering = true;
+      },0);
+      const {x,y,scale} = this._getPosAndScale();
+      let animation = {
+        0:{
+          transform:`translate3d(${x}px, ${y}px, 0) scale(${scale})`
+        },
+        60:{
+          transform: `translate3d(0, 0, 0) scale(1.1)`
+        },
+        100:{
+           transform: `translate3d(0, 0, 0) scale(1)`
+        }
+      }
+      animations.registerAnimation({
+        name:'move',
+        animation,
+        presets:{
+          duration:400,
+          esing:'linear',
+          delay:100
+        }
+      }) //设置动画
+      animations.runAnimation(this.$refs.cdWrapper,'move',done);
+      console.log(this);
+      console.log(done); //done内部就是一个异步执行过程。。
     },
-    leave() {
-      this.$refs.top.style["transform"] = "translate3d(0, -100px, 0)";
-      this.$refs.bottom.style["transform"] = "translate3d(0, 100px, 0)";
+    afterEnter(){
+      animations.unregisterAnimation('move'); //移除动画
+      this.$refs.cdWrapper.style.animation = '';
+    },  
+    Leave(el,done) {
+       console.log('离开');
+      this.entering = false;
+      const {x,y,scale} = this._getPosAndScale()
+       this.$refs.cdWrapper.style.transition = `all 0.4s ease`
+      this.$refs.cdWrapper.style['transform'] = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
+      this.$refs.cdWrapper.style['webkitTransform'] = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
+      this.$refs.cdWrapper.addEventListener('transitionend', done);//动画结束
+    },
+    afterLeave(){
+      this.$refs.cdWrapper.style['transform'] = ''
+      this.$refs.cdWrapper.style['webkitTransform'] = ''
+      this.$refs.cdWrapper.style.transition = ''
+    },
+    _getPosAndScale(){
+      const targetWidth = 40;
+      const paddingLeft = 40;
+      const paddingBottom = 30;
+      const paddingTop = 80;
+      const width = window.innerWidth * 0.8; //屏幕宽度
+      const scale = targetWidth / width; //百分比
+      const x = -(window.innerWidth / 2 - paddingLeft); //计算x偏移值
+      const y = window.innerHeight - paddingTop - width / 2 - paddingBottom; //y偏移值
+      return {x, y, scale} 
     },
     middleTouchStart(e) {
       this.touch.initiated = true;
@@ -538,15 +588,6 @@ export default {
         newPlaying ? audio.play() : audio.pause();
       });
       console.log(newPlaying);
-      if (!newPlaying) {
-        if (this.fullScreen) {
-          //显示全屏状态
-          console.log("显示全屏");
-        } else {
-          //显示迷你播放器状态
-          console.log("显示迷你");
-        }
-      }
     },
     fullScreen(newVal) {
       //全屏
@@ -589,6 +630,7 @@ export default {
   top: 0;
   left: 6px;
   z-index: 50;
+   transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32);
 }
 .player-back {
   position: absolute;
@@ -661,6 +703,7 @@ export default {
   position: absolute;
   bottom: 50px;
   width: 100%;
+  transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32);
 }
 .dot-wrapper {
   text-align: center;
@@ -806,13 +849,36 @@ export default {
   color: aquamarine;
   font-size: 20px;
 }
-.normal-enter-active,
+.normal-enter-active{
+transition: all 0.4s;
+}
 .normal-leave-active {
   transition: all 0.4s;
 }
-.normal-enter,
-.normal-leave-to {
+.normal-enter,.normal-leave-to {
+      opacity: 0;
+}
+.top-enter{
+opacity: 1;
+transform: translate3d(0, 0px, 0);
+}
+.top-leave{
   opacity: 0;
+  transform: translate3d(0, -100px, 0);
+}
+.bottom-enter{
+ opacity: 1;
+ transform: translate3d(0, 0px, 0);
+}
+.bottom-leave{
+ opacity: 0;
+ transform: translate3d(0, 100px, 0);
+}
+.mini-enter-active,.mini-leave-active {
+      transition: all 0.4s;
+    }
+.mini-enter,.mini-leave-to {
+      opacity: 0;
 }
 @keyframes rotate {
   0% {

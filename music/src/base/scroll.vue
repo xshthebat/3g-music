@@ -22,6 +22,20 @@ export default {
     listenScroll: {
       type: Boolean, //是否监听滚动
       default: false
+    },
+    // 延迟刷新
+    refreshDelay: {
+      type: Number,
+      default: 20
+    },
+    pullup: {
+      type: Boolean,
+      default: false
+    }, //上拉刷新
+    // 滚动前是否触发事件，如：滚动前让输入框失去焦点，避免滚动搜索结果时移动端键盘遮挡
+    beforeScroll: {
+      type: Boolean,
+      default: false
     }
   },
   mounted() {
@@ -44,7 +58,21 @@ export default {
           this.scroll.on('scroll', (pos) => {
             this.$emit('scroll', pos)
           })
-        }
+      }
+      if(this.pullup){
+        console.log('监听pullup')
+        this.scroll.on('scrollEnd',()=>{
+          if(this.scroll.y<=(this.scroll.maxScrollY+50)){
+            //滑到底部
+            this.$emit('scrollToEnd');
+          }
+        })
+      }
+      if(this.beforeScroll){
+        this.scroll.on('beforeScrollStart',()=>{
+          this.$emit('beforeScroll');
+        })
+      }
 		},
 		refresh(){
 			this.scroll && this.scroll.refresh();
@@ -58,9 +86,9 @@ export default {
 	},
 	watch: {
       data () {
-       this.$nextTick(()=>{
-				 this.refresh();
-			 })
+        setTimeout(()=>{
+          this.refresh();
+        },this.refreshDelay)
       }
     }
 };

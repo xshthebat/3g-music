@@ -7,6 +7,7 @@ function _findindex(list, song) {
         return item.id === song.id;
     })
 }
+
 export const randomPlay = function({ commit }, { list }) {
     let randomlist = shuffle(list);
     commit(types.SET_PLAY_MODE, playMode.random); //初始化播放模式
@@ -67,4 +68,56 @@ export const deleteSong = function({ commit, state }, song) {
 
     let playingState = playlist.length > 0;
     commit(types.SET_PLAYING_STATE, playingState);
+}
+export const saveHistory = function({ commit, state }, query) {
+    let history = state.searchHistory;
+    commit(types.SET_SEARCHHISTORY, history.push(query));
+}
+
+export const delHistory = function({ commit, state }, query) {
+    let history = state.searchHistory;
+    //找到history中关键字并删除
+    let i = history.findIndex((item) => {
+        return item === query;
+    })
+
+    commit(types.SET_SEARCHHISTORY, history.splice(i, 1));
+}
+export const clearHistory = function({ commit }) {
+    commit(types.SET_SEARCHHISTORY, []);
+}
+export const insertSong = function({ commit, state }, song) {
+    let playlist = state.playlist.slice(0);
+    let sequenceList = state.sequenceList.slice(0);
+    let currentIndex = state.currentIndex;
+    //记录当前歌曲
+    let currentSong = playlist[currentIndex];
+
+    //查找是否已存在
+    let fpIndex = _findindex(playlist, song);
+    currentIndex++;
+    playlist.splice(currentIndex, 0, song); //往数组指定位置加当前歌曲；
+    if (fpIndex > -1) {
+        if (currentIndex > fpIndex) {
+            //在目标后
+            playlist.splice(fpIndex, 1); //直接删除重复歌曲
+        } else {
+            playlist.splice(fpIndex + 1, 1); //因为之前加入后面下标都需要加1
+        }
+    }
+    let currentSIndex = _findindex(sequenceList, currentSong) + 1;
+    //查找歌曲是否已在列表中
+    let fsIndex = _findindex(sequenceList, song);
+    if (fsIndex > -1) {
+        if (currentSIndex > fsIndex) {
+            sequenceList.splice(fsIndex, 1);
+        } else {
+            sequenceList.splice(fsIndex + 1, 1); //同上
+        }
+    }
+    commit(types.SET_PLAYLIST, playlist);
+    commit(types.SET_SEQUENCE_LIST, sequenceList);
+    commit(types.SET_CURRENT_INDEX, currentIndex);
+    commit(types.SET_PLAYING_STATE, true);
+    commit(types.SET_FULL_SCREEN, true);
 }
