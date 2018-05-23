@@ -51,48 +51,52 @@ export default {
       this.scroll = new BScroll(this.$refs.wrapper, {
         probeType: this.probeType,
         click: this.click
-			}); 
-	    console.log('scroll初始化成功');
+      });
+      // console.log('scroll初始化成功');
       if (this.listenScroll) {
-          console.log('监听scroll');
-          this.scroll.on('scroll', (pos) => {
-            this.$emit('scroll', pos)
-          })
+        // console.log('监听scroll');
+        this.scroll.on("scroll", pos => {
+          this.$emit("scroll", pos);
+        });
       }
-      if(this.pullup){
-        console.log('监听pullup')
-        this.scroll.on('scrollEnd',()=>{
-          if(this.scroll.y<=(this.scroll.maxScrollY+50)){
+      if (this.pullup) {
+        // console.log('监听pullup')
+        this.scroll.on("scrollEnd", () => {
+          if (this.scroll.y <= this.scroll.maxScrollY + 50) {
             //滑到底部
-            this.$emit('scrollToEnd');
+            this.$emit("scrollToEnd");
           }
-        })
+        });
       }
-      if(this.beforeScroll){
-        this.scroll.on('beforeScrollStart',()=>{
-          this.$emit('beforeScroll');
-        })
+      if (this.beforeScroll) {
+        this.scroll.on("beforeScrollStart", () => {
+          this.$emit("beforeScroll");
+        });
       }
-		},
-		refresh(){
-			this.scroll && this.scroll.refresh();
     },
-    scrollToElement(){
-      this.scroll&&this.scroll.scrollToElement.apply(this.scroll,arguments);
-    },
-    scrollTo () {
-        this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)
-    },
-	},
-	watch: {
-      data () {
-        setTimeout(()=>{
+    refresh() {
+      this.scroll && this.scroll.refresh();
+      setTimeout(() => {
+        if (this.scroll.scrollerHeight === 0) {
           this.refresh();
-        },this.refreshDelay)
-      }
+        }
+      }, 0);
+    },
+    scrollToElement() {
+      this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments);
+    },
+    scrollTo() {
+      this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments);
     }
+  },
+  watch: {
+    data() {
+      this.$nextTick(() => {
+        this.refresh();
+      });
+    }
+  }
 };
 </script>
 <style>
-
 </style>

@@ -6,7 +6,7 @@
       <div  v-if="recommends.length" class="slider-wrapper">
            <slider>
              <div v-for="item in recommends">
-                <a :href="item.linkUrl">
+                <a :href="item.linkUrl" @click.prevent>
                   <img class="needsclick"  v-lazy="item.picUrl" @load="loadImage" style="height:150px">
                 </a>
              </div>
@@ -64,16 +64,16 @@ export default {
     _getRecommend() {
       getRecommend().then(res => {
         if (res.code == ERR_OK) {
-          console.log("轮播图数据获取成功");
+          // console.log("轮播图数据获取成功");
           this.recommends = res.data.slider;
-          console.log(this.recommends);
+          // console.log(this.recommends);
         }
       });
     },
     _getDiscList() {
       getDiscList().then(res => {
         if (res.code == ERR_OK) {
-          console.log("歌单数据获取成功");
+          // console.log("歌单数据获取成功");
           this.discList = res.data.list;
           // console.log(this.discList);
         }

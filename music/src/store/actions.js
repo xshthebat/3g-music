@@ -70,18 +70,25 @@ export const deleteSong = function({ commit, state }, song) {
     commit(types.SET_PLAYING_STATE, playingState);
 }
 export const saveHistory = function({ commit, state }, query) {
-    let history = state.searchHistory;
-    commit(types.SET_SEARCHHISTORY, history.push(query));
+    let history = state.searchHistory.slice(0);
+    console.log('检测是否在');
+    let index = history.findIndex((item) => {
+        return item === query
+    });
+    if (index === -1) {
+        history.push(query);
+    }
+    commit(types.SET_SEARCHHISTORY, history);
 }
 
 export const delHistory = function({ commit, state }, query) {
-    let history = state.searchHistory;
+    let history = state.searchHistory.slice(0);
     //找到history中关键字并删除
     let i = history.findIndex((item) => {
         return item === query;
     })
-
-    commit(types.SET_SEARCHHISTORY, history.splice(i, 1));
+    history.splice(i, 1);
+    commit(types.SET_SEARCHHISTORY, history);
 }
 export const clearHistory = function({ commit }) {
     commit(types.SET_SEARCHHISTORY, []);
@@ -95,19 +102,23 @@ export const insertSong = function({ commit, state }, song) {
 
     //查找是否已存在
     let fpIndex = _findindex(playlist, song);
-    currentIndex++;
+    currentIndex++; //当前歌曲下一首为新插入歌曲
+
     playlist.splice(currentIndex, 0, song); //往数组指定位置加当前歌曲；
-    if (fpIndex > -1) {
+    if (fpIndex !== -1) {
+        //以前有歌曲
         if (currentIndex > fpIndex) {
-            //在目标后
+            //插入歌曲下标比以前大 
             playlist.splice(fpIndex, 1); //直接删除重复歌曲
+            currentIndex--;
         } else {
-            playlist.splice(fpIndex + 1, 1); //因为之前加入后面下标都需要加1
+            playlist.splice(fpIndex + 1, 1); //插入后下标增加
         }
     }
-    let currentSIndex = _findindex(sequenceList, currentSong) + 1;
-    //查找歌曲是否已在列表中
+    let currentSIndex = _findindex(sequenceList, currentSong) + 1; //找到插入前播放的下标 
+    // //查找歌曲是否已在列表中
     let fsIndex = _findindex(sequenceList, song);
+    sequenceList.splice(currentSIndex, 0, song);
     if (fsIndex > -1) {
         if (currentSIndex > fsIndex) {
             sequenceList.splice(fsIndex, 1);

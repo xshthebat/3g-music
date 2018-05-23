@@ -24,12 +24,17 @@
                           <img :src="currentSong.image" class="cdimage">
                       </div>
                   </div>
+                  <div class="cd-lyric-wrapper">
+                    <p class="lytext" v-show="isPureMusic">此歌曲为没有填词的纯音乐，请您欣赏</p>
+                    <div class="playing-lyric" v-show="!isPureMusic">{{playingLyric}}</div>
+                  </div>
               </div>
               <scroll class="middle-r" ref="lyricList" :listenScroll="true" :data="currentLyric&&currentLyric.lines">
               <div class="lyric-wrapper">
                   <div v-if="currentLyric" @click="clicklyric">
                       <p ref="lyricLine" class="lytext" v-for="(line,index) of currentLyric.lines" :class="{'lycurrent': currentLineNum === index}">{{ line.txt }}</p>
                   </div>
+                  <p class="lytext" v-show="isPureMusic">此歌曲为没有填词的纯音乐，请您欣赏</p>
               </div>
               </scroll>
           </div>
@@ -99,7 +104,7 @@
 </template>
 <script>
 import scroll from "../base/scroll";
-import animations from 'create-keyframe-animation'; //动画库
+import animations from "create-keyframe-animation"; //动画库
 import progressbar from "../base/progressbar";
 import progresscirle from "../base/progresscircle";
 import { mapGetters, mapMutations, mapActions } from "vuex";
@@ -117,15 +122,17 @@ export default {
       currentLineNum: 0, //歌词行数
       currentShow: "cd", //展示界面默认 cd
       prrgresschanging: false, //进度条正在改变标志
-      entering:false //进入标志
+      playingLyric: "无歌词数据",
+      isPureMusic: false, //纯音乐
+      entering: false //进入标志
     };
   },
   created() {
     this.touch = {};
   },
   computed: {
-    isenter(){
-      return this.entering ?true:false;
+    isenter() {
+      return this.entering ? true : false;
     },
     cdCls() {
       return this.playing ? "cdplay" : "cdplay pause";
@@ -161,54 +168,58 @@ export default {
     ])
   },
   methods: {
-    Enter(el,done){
-      setTimeout(()=>{
+    Enter(el, done) {
+      setTimeout(() => {
         this.entering = true;
-      },0);
-      const {x,y,scale} = this._getPosAndScale();
+      }, 0);
+      const { x, y, scale } = this._getPosAndScale();
       let animation = {
-        0:{
-          transform:`translate3d(${x}px, ${y}px, 0) scale(${scale})`
+        0: {
+          transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`
         },
-        60:{
+        60: {
           transform: `translate3d(0, 0, 0) scale(1.1)`
         },
-        100:{
-           transform: `translate3d(0, 0, 0) scale(1)`
+        100: {
+          transform: `translate3d(0, 0, 0) scale(1)`
         }
-      }
+      };
       animations.registerAnimation({
-        name:'move',
+        name: "move",
         animation,
-        presets:{
-          duration:400,
-          esing:'linear',
-          delay:100
+        presets: {
+          duration: 400,
+          esing: "linear",
+          delay: 100
         }
-      }) //设置动画
-      animations.runAnimation(this.$refs.cdWrapper,'move',done);
-      console.log(this);
-      console.log(done); //done内部就是一个异步执行过程。。
+      }); //设置动画
+      animations.runAnimation(this.$refs.cdWrapper, "move", done);
+      // console.log(this);
+      // console.log(done); //done内部就是一个异步执行过程。。
     },
-    afterEnter(){
-      animations.unregisterAnimation('move'); //移除动画
-      this.$refs.cdWrapper.style.animation = '';
-    },  
-    Leave(el,done) {
-       console.log('离开');
+    afterEnter() {
+      animations.unregisterAnimation("move"); //移除动画
+      this.$refs.cdWrapper.style.animation = "";
+    },
+    Leave(el, done) {
+      console.log("离开");
       this.entering = false;
-      const {x,y,scale} = this._getPosAndScale()
-       this.$refs.cdWrapper.style.transition = `all 0.4s ease`
-      this.$refs.cdWrapper.style['transform'] = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
-      this.$refs.cdWrapper.style['webkitTransform'] = `translate3d(${x}px, ${y}px, 0) scale(${scale})`
-      this.$refs.cdWrapper.addEventListener('transitionend', done);//动画结束
+      const { x, y, scale } = this._getPosAndScale();
+      this.$refs.cdWrapper.style.transition = `all 0.4s ease`;
+      this.$refs.cdWrapper.style[
+        "transform"
+      ] = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+      this.$refs.cdWrapper.style[
+        "webkitTransform"
+      ] = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+      this.$refs.cdWrapper.addEventListener("transitionend", done); //动画结束
     },
-    afterLeave(){
-      this.$refs.cdWrapper.style['transform'] = ''
-      this.$refs.cdWrapper.style['webkitTransform'] = ''
-      this.$refs.cdWrapper.style.transition = ''
+    afterLeave() {
+      this.$refs.cdWrapper.style["transform"] = "";
+      this.$refs.cdWrapper.style["webkitTransform"] = "";
+      this.$refs.cdWrapper.style.transition = "";
     },
-    _getPosAndScale(){
+    _getPosAndScale() {
       const targetWidth = 40;
       const paddingLeft = 40;
       const paddingBottom = 30;
@@ -217,7 +228,7 @@ export default {
       const scale = targetWidth / width; //百分比
       const x = -(window.innerWidth / 2 - paddingLeft); //计算x偏移值
       const y = window.innerHeight - paddingTop - width / 2 - paddingBottom; //y偏移值
-      return {x, y, scale} 
+      return { x, y, scale };
     },
     middleTouchStart(e) {
       this.touch.initiated = true;
@@ -305,14 +316,15 @@ export default {
             //检测歌词是否正确;
             return;
           }
+
           this.$nextTick(() => {
             this.currentLyric = new Lyric(lyric, this.handleLyric);
-            this.isPureMusic = !this.currentLyric.lines.length; //没歌词音乐
+            if (this.currentLyric.lines.length === 0) {
+              this.isPureMusic = true;
+            }
             if (this.isPureMusic) {
-              this.pureMusicLyric = this.currentLyric.lrc
-                .replace(timeExp, "")
-                .trim();
-              this.playingLyric = this.pureMusicLyric;
+              console.log(this.isPureMusic, "纯音乐");
+              return;
             } else {
               if (this.playing && this.canLyricPlay) {
                 // 这个时候有可能用户已经播放了歌曲，要切到对应位置
@@ -320,7 +332,6 @@ export default {
               }
             }
             //设置当前歌词轴
-            console.log(this.currentLyric);
             console.log(this.currentLineNum);
           });
         })
@@ -344,7 +355,7 @@ export default {
           let lineEl = this.$refs.lyricLine[0];
           this.$refs.lyricList.scrollTo(lineEl, 1000);
         }
-        this.playingLyric = txt;
+        this.playingLyric = txt; //当前歌词
       });
     },
     open() {
@@ -391,6 +402,11 @@ export default {
       if (index === -1) {
         index = this.playlist.length - 1;
       }
+      if (this.playlist.length === 1) {
+        //需要重新播放
+        console.log("重新播放");
+        this.once();
+      }
       this.setCurrentIndex(index); //重设置当前页
       if (!this.playing) {
         this.togglePlaying();
@@ -403,6 +419,11 @@ export default {
       let index = this.currentIndex + 1;
       if (index === this.playlist.length) {
         index = 0;
+      }
+     if (this.playlist.length === 1) {
+        //需要重新播放
+        console.log("重新播放");
+        this.once();
       }
       this.setCurrentIndex(index); //重设置当前页
       if (!this.playing) {
@@ -472,7 +493,7 @@ export default {
     },
     ended() {
       this.currentTime = 0;
-      if (this.mode === playMode.once) {
+      if (this.mode === playMode.once||this.playlist.length===1) {
         this.once();
         return;
       }
@@ -552,6 +573,7 @@ export default {
   },
   watch: {
     currentSong(newsong, oldsong) {
+      console.log('曲目变化');
       if (!newsong.id || !newsong.url || newsong.id === oldsong.id) {
         return;
       }
@@ -630,7 +652,7 @@ export default {
   top: 0;
   left: 6px;
   z-index: 50;
-   transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32);
+  transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32);
 }
 .player-back {
   position: absolute;
@@ -849,36 +871,39 @@ export default {
   color: aquamarine;
   font-size: 20px;
 }
-.normal-enter-active{
-transition: all 0.4s;
+.normal-enter-active {
+  transition: all 0.4s;
 }
 .normal-leave-active {
   transition: all 0.4s;
 }
-.normal-enter,.normal-leave-to {
-      opacity: 0;
+.normal-enter,
+.normal-leave-to {
+  opacity: 0;
 }
-.top-enter{
-opacity: 1;
-transform: translate3d(0, 0px, 0);
+.top-enter {
+  opacity: 1;
+  transform: translate3d(0, 0px, 0);
 }
-.top-leave{
+.top-leave {
   opacity: 0;
   transform: translate3d(0, -100px, 0);
 }
-.bottom-enter{
- opacity: 1;
- transform: translate3d(0, 0px, 0);
+.bottom-enter {
+  opacity: 1;
+  transform: translate3d(0, 0px, 0);
 }
-.bottom-leave{
- opacity: 0;
- transform: translate3d(0, 100px, 0);
+.bottom-leave {
+  opacity: 0;
+  transform: translate3d(0, 100px, 0);
 }
-.mini-enter-active,.mini-leave-active {
-      transition: all 0.4s;
-    }
-.mini-enter,.mini-leave-to {
-      opacity: 0;
+.mini-enter-active,
+.mini-leave-active {
+  transition: all 0.4s;
+}
+.mini-enter,
+.mini-leave-to {
+  opacity: 0;
 }
 @keyframes rotate {
   0% {
@@ -954,5 +979,17 @@ transform: translate3d(0, 0px, 0);
   height: 32px;
   background-image: url(../common/image/minilist.svg);
   position: absolute;
+}
+.cd-lyric-wrapper {
+  width: 80%;
+  margin: 50px auto 0 auto;
+  overflow: hidden;
+  text-align: center;
+}
+.playing-lyric {
+  height: 20px;
+  line-height: 20px;
+  font-size: 15px;
+  color: #fff;
 }
 </style>

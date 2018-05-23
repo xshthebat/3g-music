@@ -52,7 +52,7 @@ export default {
     };
   },
   mounted() {
-    console.log(this.$refs);
+    // console.log(this.$refs);
     // debugger;
     this.update();
     window.addEventListener("resize", () => {
@@ -156,8 +156,8 @@ export default {
         stopPropagation: true,
         click: this.click
       });
-      console.log(this.slide);
-      console.log(this.slide.pages.length);
+      // console.log(this.slide);
+      // console.log(this.slide.pages.length);
       if (this.slide.pages.length == 0 && this.loop) {
         console.log("初始化失败");
       }
