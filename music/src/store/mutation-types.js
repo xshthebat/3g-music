@@ -8,3 +8,5 @@ export const SET_PLAYING_STATE = 'SET_PLAYING_STATE';
 export const SET_LIKE_LIST = 'SET_LIKE_LIST';
 export const DEL_LIKE_LIST = 'DEL_LIKE_LIST';
 export const SET_SEARCHHISTORY = 'SET_SEARCHHISTORY';
+export const SET_RANKLIST = 'SET_RANKLIST'
+export const SET_SONGLIST = 'SET_SONGLIST';

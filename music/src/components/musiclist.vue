@@ -202,7 +202,7 @@ export default {
   background: #fff;
 }
 .song-list-wrapper {
-  padding: 0 0 0 30px;
+  padding: 0 0 0 20px;
 }
 .play-wrapper {
   position: absolute;

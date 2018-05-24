@@ -76,11 +76,6 @@ export default {
     },
     refresh() {
       this.scroll && this.scroll.refresh();
-      setTimeout(() => {
-        if (this.scroll.scrollerHeight === 0) {
-          this.refresh();
-        }
-      }, 0);
     },
     scrollToElement() {
       this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments);

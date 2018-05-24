@@ -318,6 +318,7 @@ export default {
           }
 
           this.$nextTick(() => {
+            this.isPureMusic = false; //纯音乐
             this.currentLyric = new Lyric(lyric, this.handleLyric);
             if (this.currentLyric.lines.length === 0) {
               this.isPureMusic = true;
@@ -982,7 +983,7 @@ export default {
 }
 .cd-lyric-wrapper {
   width: 80%;
-  margin: 50px auto 0 auto;
+  margin: 30px auto 0 auto;
   overflow: hidden;
   text-align: center;
 }

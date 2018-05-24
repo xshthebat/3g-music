@@ -10,3 +10,5 @@ export const currentSong = state => {
 }
 export const likelist = state => state.likelist;
 export const searchHistory = state => state.searchHistory;
+export const rankList = state => state.rankList;
+export const songlist = state => state.songlist;

@@ -8,6 +8,8 @@ const state = {
     fullScreen: false,
     currentIndex: -1,
     likelist: [],
-    searchHistory: [] //搜索历史
+    searchHistory: [], //搜索历史
+    rankList: {},
+    songlist: {}
 }
 export default state

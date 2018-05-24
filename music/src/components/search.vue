@@ -121,6 +121,16 @@ export default {
     scrollData() {
       return this.hotkey.concat(this.searchHistory);
     }
+  },
+  watch:{
+    query(newval){
+      if(!newval){
+        console.log('显示');
+        this.$nextTick(()=>{
+          this.$refs.scrollRef.refresh();
+        })
+      }
+    }
   }
 };
 </script>

@@ -1,6 +1,6 @@
 <template>
-    <div class="search-list" v-show="searches.length">
-        <transition-group name="search-h-list" tag="ul" >
+    <div class="search-list" v-show="searches.length" ref="list">
+        <transition-group name="search-h-list" tag="ul">
             <li :key="item" class="search-list-item" @click="selectItem(item)" v-for="item in searches">
                 <span class="search-list-text">{{item}}</span>
 

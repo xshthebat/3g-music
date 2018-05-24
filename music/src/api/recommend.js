@@ -26,3 +26,22 @@ export function getDiscList() {
     })
     return jsonp(url, data, options);
 }
+
+export function getSongList(disstid) {
+    let url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+    let data = Object.assign({}, commonParams, {
+        disstid,
+        type: 1,
+        json: 1,
+        utf8: 1,
+        onlysong: 0,
+        platform: 'yqq',
+        hostUin: 0,
+        needNewCode: 0
+    })
+    let opts = Object.assign({}, opts, {
+        param: 'jsonpCallback',
+        name: 'playlistinfoCallback'
+    })
+    return jsonp(url, data, opts)
+}
