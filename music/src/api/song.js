@@ -3,7 +3,7 @@ import { commonParams, options } from '../api/config';
 import { getUid } from '../common/js/uid';
 const debug = process.env.NODE_ENV !== 'production'
 export function getLyric(mid) {
-    const url = debug ? "http://localhost:8888/getlyric" : "http://123.207.l38.78:8888/getlyric";
+    const url = debug ? "http://localhost:8888/getlyric" : "http://123.207.138.78:8888/getlyric";
     return jsonp(url, { songmid: mid }, options);
 }
 export function getVKey(songmid, filename) {

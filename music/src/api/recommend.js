@@ -28,9 +28,9 @@ export function getDiscList() {
 }
 
 export function getSongList(disstid) {
-    let url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'
+    let url = debug ? 'http://localhost:8888/getlistDetail' : 'http://123.207.138.78:8888/getlistDetail';
     let data = Object.assign({}, commonParams, {
-        disstid,
+        dic: disstid,
         type: 1,
         json: 1,
         utf8: 1,
@@ -39,9 +39,5 @@ export function getSongList(disstid) {
         hostUin: 0,
         needNewCode: 0
     })
-    let opts = Object.assign({}, opts, {
-        param: 'jsonpCallback',
-        name: 'playlistinfoCallback'
-    })
-    return jsonp(url, data, opts)
+    return jsonp(url, data, options)
 }

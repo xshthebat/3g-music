@@ -49,8 +49,26 @@ app.get('/getlyric', function(req, res) {
         }
     })
 })
+app.get('/getlistDetail', function(req, res) {
+    let dic = req.query.dic;
+    let options = {
+        url: `https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg?type=1&json=1&utf8=1&onlysong=0&disstid=${dic}&g_tk=1057756813&loginUin=0&hostUin=0&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0`,
+        methods: 'GET',
+        headers: {
+            referer: `https://y.qq.com/n/yqq/playlist/${dic}.html`,
+            "user-agent": 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36'
+        }
+    }
+    request(options, function(err, respsonse, body) {
+        if (!err) {
+            let jsonCallback = function(ress) {
+                res.jsonp(ress);
+            }
+            eval(body);
+        } else {
+            console.log(err);
+        }
+    })
+})
 app.listen(8888);
 console.log('music running')
-const t = (new Date).getUTCMilliseconds();
-var _uid = Math.round(2147483647 * Math.random()) * t % 1e10;
-console.log(_uid);

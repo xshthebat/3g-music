@@ -1,13 +1,19 @@
 <template>
     <transition name="list-slide">
+      <musiclist :songs="songs" :title="title" :bgImage="bgImage" class="list-detail" ></musiclist>
   </transition>
 </template>
 <script>
 import { mapGetters } from "vuex";
 import { getSongList } from "../api/recommend.js";
 import musiclist from "../components/musiclist";
-import Singer from "../common/js/Singer.js";
+import { createSong } from "../common/js/song.js";
 export default {
+  data() {
+    return {
+      songs: []
+    };
+  },
   methods: {
     _getSongList() {
       if (!this.songlist.dissid) {
@@ -15,14 +21,25 @@ export default {
         return;
       }
       getSongList(this.songlist.dissid).then(res => {
-        console.log(res);
+        if(res.code ===0){
+            this.songs = this._formatSong(res.cdlist[0].songlist);
+        }
       });
+    },
+     _formatSong(list) {
+      let result = [];
+      list.forEach(item => {
+        if (item.songid && item.albummid) {
+          result.push(createSong(item));
+        }
+      });
+      return result;
     }
   },
   created() {
     this._getSongList();
   },
-  component: {
+  components: {
     musiclist
   },
   computed: {
@@ -45,8 +62,16 @@ export default {
   transition: all 0.3s ease;
 }
 .list-slide-enter,
-.rank-slide-leave-to {
+.list-slide-leave-to {
   opacity: 0;
   transform: translate3d(100%, 0, 0);
+}
+.list-detail {
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 </style>

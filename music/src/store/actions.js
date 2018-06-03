@@ -15,7 +15,7 @@ export const randomPlay = function({ commit }, { list }) {
     commit(types.SET_PLAYLIST, randomlist); //初始播放化序列
     commit(types.SET_CURRENT_INDEX, 0); //随机播放默认取第0个
     commit(types.SET_FULL_SCREEN, true); //默认全屏显示播放器
-    commit(types.SET_PLAYING_STATE, true); //开启播放
+    // commit(types.SET_PLAYING_STATE, true); //开启播放
 }
 export const selectPlay = function({ commit, state }, { list, index }) {
     commit(types.SET_SEQUENCE_LIST, list) //初始化有序序列
@@ -30,7 +30,7 @@ export const selectPlay = function({ commit, state }, { list, index }) {
     // 剩下的照常提交
     commit(types.SET_CURRENT_INDEX, index); //随机播放默认取第0个
     commit(types.SET_FULL_SCREEN, true); //默认全屏显示播放器
-    commit(types.SET_PLAYING_STATE, true); //开启播放
+    // commit(types.SET_PLAYING_STATE, true); //开启播放
 }
 
 export const likeSong = function({ commit, state }, { song }) {
@@ -67,7 +67,7 @@ export const deleteSong = function({ commit, state }, song) {
     commit(types.SET_CURRENT_INDEX, currentIndex);
 
     let playingState = playlist.length > 0;
-    commit(types.SET_PLAYING_STATE, playingState);
+    // commit(types.SET_PLAYING_STATE, playingState);
 }
 export const saveHistory = function({ commit, state }, query) {
     let history = state.searchHistory.slice(0);
@@ -129,6 +129,6 @@ export const insertSong = function({ commit, state }, song) {
     commit(types.SET_PLAYLIST, playlist);
     commit(types.SET_SEQUENCE_LIST, sequenceList);
     commit(types.SET_CURRENT_INDEX, currentIndex);
-    commit(types.SET_PLAYING_STATE, true);
+    // commit(types.SET_PLAYING_STATE, true);
     commit(types.SET_FULL_SCREEN, true);
 }

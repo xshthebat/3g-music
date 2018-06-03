@@ -6,7 +6,7 @@ import VueLazyLoad from 'vue-lazyload'
 import './common/css/index.css'
 import store from './store/index'
 //去除300ms
-fastlick.attach(document.body);
+// fastlick.attach(document.body);
 
 Vue.config.productionTip = false
 

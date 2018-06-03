@@ -15,6 +15,7 @@
 import mheader from './components/mheader'
 import tab from './components/tab'
 import player from './components/player'
+import store from './common/js/store.js';
 export default {
  components:{
    mheader,
@@ -22,7 +23,8 @@ export default {
    player
  },
  created () {
-  this.$router.replace('/recommend')
+ let histroylook = store.getstore.getlookhistory()?`/${store.getstore.getlookhistory()}`:'/recommend';
+  this.$router.replace(histroylook)
   }
 }
 </script>

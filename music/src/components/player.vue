@@ -54,19 +54,19 @@
                <div class="operators">
                 <!-- 播放模式 -->
                  <div class="musicicon i-left ab"  @click="changeMode">
-                    <i :class="iconMode"></i>
+                    <i :class="iconMode" ></i>
                 </div>
                 <!-- 上一首 -->
                 <div class="musicicon i-left" >
-                   <i @click="prev" class="icon-prev"></i>
+                   <i @click="prev" class="icon-prev" ref="prev"></i>
                 </div>
                 <!-- 播放与暂停 -->
                  <div class="musicicon i-center" >
-                    <i  @click="togglePlaying" :class="playIcon"></i>
+                    <i  @click.prevent="togglePlaying" :class="playIcon" ref="play"></i>
                 </div>
                 <!-- 下一首 -->
                 <div class="musicicon i-right" >
-                  <i  @click="next" class="icon-next"></i>
+                  <i  @click="next" class="icon-next"  ref="next"></i>
                 </div>
                 <!-- 喜欢 -->
                 <div class="musicionc i-right ac">
@@ -115,7 +115,6 @@ import playlist from "../components/playlist";
 export default {
   data() {
     return {
-      songReady: false, //歌曲是否就位
       currentTime: 0, //当前歌曲播放时间
       radius: 32, //半径
       currentLyric: null, //歌词
@@ -129,6 +128,21 @@ export default {
   },
   created() {
     this.touch = {};
+  },
+  mounted() {
+    // let self = this;
+    // function fakeClick(fn) {
+    //     let evt;
+    //     console.log('可播放');
+    //     if (document.createEvent) {
+    //         evt = document.createEvent("MouseEvents");
+    //         if (evt.initMouseEvent) {
+    //             evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+    //             self.$refs.play.dispatchEvent(evt);
+    //         }
+    //     }
+    // }
+    // this.$refs.audio.addEventListener("canplay",fakeClick);
   },
   computed: {
     isenter() {
@@ -405,7 +419,6 @@ export default {
       }
       if (this.playlist.length === 1) {
         //需要重新播放
-        console.log("重新播放");
         this.once();
       }
       this.setCurrentIndex(index); //重设置当前页
@@ -414,14 +427,11 @@ export default {
       }
     },
     next() {
-      if (!this.songReady) {
-        return;
-      }
       let index = this.currentIndex + 1;
       if (index === this.playlist.length) {
         index = 0;
       }
-     if (this.playlist.length === 1) {
+      if (this.playlist.length === 1) {
         //需要重新播放
         console.log("重新播放");
         this.once();
@@ -447,10 +457,13 @@ export default {
       this.setCurrentIndex(index);
     },
     togglePlaying() {
-      if (!this.songReady) {
-        return;
-      }
+      console.log("播放");
       this.setPlayingState(!this.playing);
+      if(this.playing){
+        this.$refs.audio.play();
+      } else{
+        this.$refs.audio.pause();
+      }
       if (this.currentLyric) {
         this.currentLyric.togglePlay();
       }
@@ -484,8 +497,10 @@ export default {
     },
     ready() {
       console.log("播放中");
+      if(!this.playing){
+        this.setPlayingState(true);
+      }
       clearTimeout(this.timer);
-      this.songReady = true;
       this.canLyricPlay = true;
       // this.savePlayHistory(this.currentSong) //历史
       if (this.currentLyric && !this.isPureMusic) {
@@ -494,7 +509,7 @@ export default {
     },
     ended() {
       this.currentTime = 0;
-      if (this.mode === playMode.once||this.playlist.length===1) {
+      if (this.mode === playMode.once || this.playlist.length === 1) {
         this.once();
         return;
       }
@@ -512,8 +527,8 @@ export default {
     },
     error() {
       console.log("出错");
+      alert("err");
       clearTimeout(this.timer);
-      this.songReady = true;
     },
     onProgressBarChange(percent) {
       const currentTime = this.currentSong.duration * percent; //计算现在时间
@@ -574,7 +589,7 @@ export default {
   },
   watch: {
     currentSong(newsong, oldsong) {
-      console.log('曲目变化');
+      console.log("曲目变化");
       if (!newsong.id || !newsong.url || newsong.id === oldsong.id) {
         return;
       }
@@ -588,29 +603,25 @@ export default {
         this.playingLyric = "";
         this.currentLineNum = 0;
       }
-      this.songReady = false;
       this.$refs.audio.src = newsong.url;
-      this.$nextTick(() => {
-        this.$refs.audio.play();
-      });
-      //若歌曲 5s 未播放，则认为超时，修改状态确保可以切换歌曲。
-      clearTimeout(this.timer);
-      this.timer = setTimeout(() => {
-        console.log("超时");
-        this.songReady = true;
-      }, 5000);
+      if (this.playing) {
+        console.log('直接播放');
+        this.$nextTick(() => {
+          this.$refs.audio.play();
+        });
+      }
       this.getLyric(); //加载歌词;
     },
     playing(newPlaying) {
-      if (!this.songReady) {
-        console.log("歌曲未准备好");
-        return;
+      if (newPlaying) {
+        this.$nextTick(() => {
+          this.$refs.audio.play();
+        });
+      } else{
+        this.$nextTick(() => {
+          this.$refs.audio.pause();
+        });
       }
-      const audio = this.$refs.audio;
-      this.$nextTick(() => {
-        newPlaying ? audio.play() : audio.pause();
-      });
-      console.log(newPlaying);
     },
     fullScreen(newVal) {
       //全屏
