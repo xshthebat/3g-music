@@ -29,7 +29,7 @@ import scroll from "../base/scroll";
 import loading from "../base/loading";
 import songlist from "../base/songlist";
 import {playlistMixin}from "../common/js/mixin";
-import {mapActions} from "vuex";
+import {mapActions,mapMutations} from "vuex";
 export default {
   mixins:[playlistMixin],
   props: {
@@ -77,6 +77,7 @@ export default {
         list:this.songs,
         index:index
       });
+    //  this.setstate(true);
     },
     random() {
      this.randomPlay({
@@ -86,7 +87,10 @@ export default {
     ...mapActions([
       'selectPlay',
       'randomPlay'
-    ])
+    ]),
+    ...mapMutations({
+       setstate: "SET_PLAYING_STATE"
+    })
   },
   mounted() {
     this.imageHeight = this.$refs.bgImage.clientHeight;

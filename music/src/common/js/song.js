@@ -73,3 +73,13 @@ function filterSinger(singer) {
     })
     return ret.join('/')
 }
+
+export function createSonglist(list) {
+    if (!list) {
+        return [];
+    }
+    return list.map((item) => {
+        // console.log(item, new Song(item));
+        return new Song(item);
+    })
+}

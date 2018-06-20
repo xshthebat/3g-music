@@ -7,6 +7,8 @@ import search from './../components/search'
 import singerdetail from './../components/singerdetail'
 import rankdetail from './../components/rankdetail'
 import songListdetail from './../components/songListdetail'
+import login from "./../components/login";
+import checkcode from "./../components/checkcode";
 Vue.use(Router)
 export default new Router({
     routes: [{
@@ -48,5 +50,13 @@ export default new Router({
                 component: singerdetail
             }]
         },
+        {
+            path: '/login',
+            component: login
+        },
+        {
+            path: '/login/checkcode',
+            component: checkcode
+        }
     ]
 })

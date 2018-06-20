@@ -1,7 +1,7 @@
 <template>
   <div class="song-list">
       <ul>
-          <li v-for="(song,index) in songs" class="songitem" @click="selectItem(song,index)">
+          <div v-for="(song,index) in songs" class="songitem" @click="selectItem(song,index)">
             <div class="rank-icon" v-if="rank">
                 <span :class="getRankCls(index)">{{getRankText(index)}}</span>
             </div>
@@ -9,7 +9,7 @@
                  <h2 class="songname">{{song.name}}</h2>
                  <p class="songdesc">{{getDesc(song)}}</p>
             </div>
-          </li>
+          </div>
       </ul>
   </div>
 </template>

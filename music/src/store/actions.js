@@ -11,11 +11,14 @@ function _findindex(list, song) {
 export const randomPlay = function({ commit }, { list }) {
     let randomlist = shuffle(list);
     commit(types.SET_PLAY_MODE, playMode.random); //初始化播放模式
+    // store.setstore.setMode(playMode.random);
+    // store.setstore.setMode(3);
     commit(types.SET_SEQUENCE_LIST, list); //初始化有序序列
     commit(types.SET_PLAYLIST, randomlist); //初始播放化序列
     commit(types.SET_CURRENT_INDEX, 0); //随机播放默认取第0个
     commit(types.SET_FULL_SCREEN, true); //默认全屏显示播放器
     // commit(types.SET_PLAYING_STATE, true); //开启播放
+    // store.setstore.setPlaylist(list);
 }
 export const selectPlay = function({ commit, state }, { list, index }) {
     commit(types.SET_SEQUENCE_LIST, list) //初始化有序序列
@@ -128,6 +131,7 @@ export const insertSong = function({ commit, state }, song) {
     }
     commit(types.SET_PLAYLIST, playlist);
     commit(types.SET_SEQUENCE_LIST, sequenceList);
+    console.log(currentIndex);
     commit(types.SET_CURRENT_INDEX, currentIndex);
     // commit(types.SET_PLAYING_STATE, true);
     commit(types.SET_FULL_SCREEN, true);
