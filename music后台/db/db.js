@@ -10,9 +10,11 @@ function query(query) {
         pool.getConnection((function(err, connection) {
             if (err) {
                 throw err;
+                reh(err);
             } else {
                 connection.query(query, function(error, results) {
                     if (error) {
+                        throw error;
                         rej(error)
                     } else {
                         res(results);

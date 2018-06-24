@@ -7,7 +7,7 @@
         <div class="login-middle">
             <div class="login-box">
                   <inputbox :placeholder="placeholder" :maxlenth="320" :match="/^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/" @query="getinputquery" @match="emailmatch"></inputbox>
-                  <vercodes :vercodeplaceholder="vercodeplaceholder" ref="vercodes" @vercodes="getinputvercode" @errs="vercodeerrr"></vercodes>
+                  <vercodes :vercodeplaceholder="vercodeplaceholder" ref="vercodes" @vercodes="getinputvercode" @errs="vercodeerrr" :time="60"></vercodes>
             </div>
             <!-- <div class="login-button">
                 <button class="submit-login" :class="{btndisabled:disabled}" @click="btnclick">{{button}}</button>
@@ -17,7 +17,7 @@
               <p class="messagetext" v-show="text">{{text}}</p>
             </div>
         </div>
-        <confirm :text="confirmtext" ref="confirm" @sure="confirm" @canel="confirm"></confirm>
+        <confirm :text="confirmtext" ref="confirm" @sure="confirm" @canel="canl"></confirm>
         <div v-show="submitit" class="loading-wrap">
           <loading :title="`验证码获取中`"></loading>
         </div>
@@ -55,7 +55,7 @@ export default {
       console.log(err);
     },
     back() {
-      this.$router.back(-1);
+       this.$router.push("/");
     },
     getinputvercode(newval) {
       this.vercode = newval;
@@ -86,7 +86,7 @@ export default {
             let self = this;
             this.time = setTimeout(()=>{
               self.time = null;
-            },6000);
+            },60000);
           }
           this.$refs.vercodes.getvercodes();
         });
@@ -97,10 +97,10 @@ export default {
       if (this.confirmtext === "验证发送成功请查看邮箱") {
         this.$router.push("/login/checkcode");
       }
+    },
+    canl(){
+
     }
-  },
-  activated() {
-    console.log(this.time);
   },
   watch: {
     vercode(newval) {

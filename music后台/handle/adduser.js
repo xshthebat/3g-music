@@ -1,7 +1,7 @@
 let query = require('../db/db');
 
-function haha() {
-
+function adduser(email, password) {
+    return query(`INSERT INTO \`musicuser\`.\`musicuserdata\`(\`email\`, \`username\`, \`password\`) VALUES ('${email}', '${email}', '${password}')`)
 }
-query(1);
-module.exports = haha;
+
+module.exports = adduser;

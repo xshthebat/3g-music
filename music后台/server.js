@@ -1,6 +1,7 @@
 let app = require('./app/express');
 let provercode = require('./api/getvercode');
 let postemail = require('./api/postemail');
+let adduser = require('./api/adduser');
 let query = require('./db/db');
 app.get('/api/getvercode', provercode, function(req, res) {
     if (res.jsonp) {
@@ -64,37 +65,28 @@ app.get('/api/checkvercode', function(req, res, next) {
 
 }, postemail);
 app.get('/api/checkcodes', function(req, res, next) {
-    // console.log(req.session, req.query);
-    // if (!req.session) {
-    //     if (res.jsonp) {
-    //         res.jsonp({ err: true, errtype: '验证码超时' });
-    //     } else {
-    //         res.json({ err: true, errtype: '验证码超时' });
-    //     }
-    // } else if (!req.query.codes || !req.query.password) {
-    //     if (res.jsonp) {
-    //         res.jsonp({ err: true, errtype: '参数错误' });
-    //     } else {
-    //         res.json({ err: true, errtype: '参数错误' });
-    //     }
-    // } else if (req.session.text !== req.query.codes) {
-    //     if (res.jsonp) {
-    //         res.jsonp({ err: true, errtype: '邮箱验证码错误请重试' });
-    //     } else {
-    //         res.json({ err: true, errtype: '邮箱验证码错误请重试' });
-    //     }
-    // } else {
-    //     next();
-    // }
-    next();
-}, function(req, res) {
-    //建库插入一个 初始账户 头像默认 邮箱确定 密码确定 用户名默认为邮箱 密码初始化 头像默认
-    console.log(req.query);
-    if (res.jsonp) {
-        res.jsonp({ err: true, errtype: '邮箱错误' });
+    console.log(req.session, req.query);
+    if (!req.session) {
+        if (res.jsonp) {
+            res.jsonp({ err: true, errtype: '验证码超时' });
+        } else {
+            res.json({ err: true, errtype: '验证码超时' });
+        }
+    } else if (!req.query.codes || !req.query.password) {
+        if (res.jsonp) {
+            res.jsonp({ err: true, errtype: '参数错误' });
+        } else {
+            res.json({ err: true, errtype: '参数错误' });
+        }
+    } else if (req.session.text !== req.query.codes) {
+        if (res.jsonp) {
+            res.jsonp({ err: true, errtype: '邮箱验证码错误请重试' });
+        } else {
+            res.json({ err: true, errtype: '邮箱验证码错误请重试' });
+        }
     } else {
-        res.json({ err: true, errtype: '邮箱错误' });
+        next();
     }
-})
+}, adduser)
 app.listen(8881);
 console.log('server running')
