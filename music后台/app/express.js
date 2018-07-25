@@ -1,11 +1,10 @@
 let express = require('express');
 const cookieParase = require('cookie-parser');
 let session = require('express-session');
-
 app = express();
 app.use(session({
     secret: 'music',
-    cookie: ('name', 'value', { path: '/', httpOnly: true, maxAge: 3600 * 30 }),
+    cookie: ('name', 'value', { path: '/', httpOnly: true, maxAge: 1000 * 60 * 60 * 24 }),
     //重新保存：强制会话保存即使是未修改的。默认为true但是得写上
     resave: false,
     //强制“未初始化”的会话保存到存储。 

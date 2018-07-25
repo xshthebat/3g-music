@@ -15,19 +15,21 @@
               <p class="messagetext" v-show="text">{{text}}</p>
             </div>
         </div>
-        <confirm :text="confirmtext" ref="confirm" @sure="addsuccess" ></confirm>
+        <confirm :text="confirmtext" ref="confirm" @sure="addsuccess" @canel="notsave"></confirm>
         <div v-show="submitit" class="loading-wrap">
           <loading :title="`正在注册中`"></loading>
         </div>  
     </div>
 </template>
 <script>
-import { checkemailcodes } from "../api/lgoin.js";
+import { checkemailcodes, login } from "../api/lgoin.js";
 import confirm from "../base/confirm";
 import inputbox from "../base/inputbox";
 import buttombox from "../base/buttombox";
 import loading from "../base/loading";
 import password from "../base/password";
+import { signupMode } from "../common/js/config.js";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 export default {
   data() {
     return {
@@ -41,9 +43,24 @@ export default {
       confirmtext: ""
     };
   },
+  activated() {
+    if (!this.signup) {
+      this.$router.push("/");
+    } else if (this.signupflag !== signupMode.postemail) {
+      this.setsignuoflag(signupMode.nosignup);
+      this.$router.push("/login");
+    } else {
+      this.setsignuoflag(signupMode.postemail);
+      //保持本页面状态
+    }
+    if (this.login) {
+      this.$router.push("/person");
+    }
+  },
   methods: {
     back() {
-      this.$router.back('/login');
+      this.setsignuoflag(signupMode.nosignup);
+      this.$router.back("/login");
     },
     getcodes(newval) {
       this.codes = newval;
@@ -60,41 +77,64 @@ export default {
         this.$refs.confirm.show();
         return;
       }
-      this.submitit = true;
-      checkemailcodes(this.codes, this.password).then(res => {
-        this.submitit = false;
-        console.log(res);
-        if (res.err) {
-          this.confirmtext = res.errtype;
-          this.$refs.confirm.show();
-        } else {
-          this.confirmtext = res.data;
-          this.$refs.confirm.show();
-        }
-        // this.submitit = false;
-        // this.$router.push('/login/checkcode/personinformation');
-        // this.$nextTick(()=>{
-        //     //要是注册完成去除本组件;
-        //      this.$destroy();
-        // })
-      });
+      // console.log(this.userHistory,this.likelist);
+      // return;
+      this.confirmtext = "是否同步本地信息";
+      this.$refs.confirm.show();
+      //这里提示是否保存本地历史
     },
     addsuccess() {
-      if (this.confirmtext == "注册成功") {
-        this.$router.push("/login/checkcode/personinformation");
-        this.$nextTick(() => {
-          //要是注册完成去除本组件;
-          this.$destroy();
+      if (this.confirmtext === "是否同步本地信息") {
+        console.log("上传本地，本地不清楚");
+        console.log(this.userHistory,this.likelist);
+        this.submitit = true;
+        checkemailcodes(this.codes, this.password).then(res => {
+          this.submitit = false;
+          console.log(res);
+          if (res.err) {
+            this.confirmtext = res.errtype;
+            this.$refs.confirm.show();
+          } else {
+            this.confirmtext = res.data;
+            this.checklogins();
+            this.$refs.confirm.show();
+          }
         });
+        return;
       }
-      if(this.confirmtext=="请勿重复注册"){
-          this.$router.push("/login");
-            this.$nextTick(() => {
-          //要是注册完成去除本组件;
-          this.$destroy();
+      this.$nextTick(() => {
+        this.$router.push("/person");
+        //要是完成去除本组件;
+        this.$destroy();
+      });
+    },
+    notsave() {
+      console.log('haha')
+      if (this.confirmtext === "是否同步本地信息") {
+        this.submitit = true;
+        console.log("不同步,本地清除");
+        checkemailcodes(this.codes, this.password).then(res => {
+          this.submitit = false;
+          console.log(res);
+          if (res.err) {
+            this.confirmtext = res.errtype;
+            this.$refs.confirm.show();
+          } else {
+            this.confirmtext = res.data;
+            this.checklogins();
+            this.$refs.confirm.show();
+          }
         });
+        return;
       }
-    }
+    },
+    ...mapMutations({
+      setsignuoflag: "SET_SIGNUPFLAG"
+    }),
+    ...mapActions(["checklogins"])
+  },
+  computed: {
+    ...mapGetters(["signup", "signupflag", "login", "userHistory", "likelist"])
   },
   watch: {
     codes(newval) {
@@ -151,5 +191,36 @@ export default {
   z-index: 999;
 
   background-color: rgba(0, 0, 0, 0.15);
+}
+.login {
+  position: fixed;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #fff;
+  z-index: 200;
+}
+.loginback {
+  position: absolute;
+  margin: 6px 0 0 6px;
+}
+.back-icon {
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+  background-image: url(../common/image/loginback.svg);
+}
+.logintitle {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  border-bottom: 1px solid #00000026;
+  border-top: 1px solid #00000026;
+  background-color: #f9f9f9;
+}
+.title_p {
+  font-size: 18px;
+  height: 40px;
+  line-height: 40px;
 }
 </style>

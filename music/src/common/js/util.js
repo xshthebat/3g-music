@@ -26,3 +26,17 @@ export function debounce(fn, delay) {
         }, delay)
     }
 }
+
+export function distinct(arr) {
+    let obj = {};
+    let ret = [];
+    for (let i = arr.length - 1; i >= 0; i--) {
+        // console.log(arr[i].id);
+        if (!obj[arr[i].id]) {
+            obj[arr[i].id] = 1;
+            ret.unshift(arr[i]);
+        }
+    }
+    // console.log(obj);
+    return ret
+}

@@ -13,13 +13,16 @@ const store = {
             return getstore('setSearchHisory');
         },
         getLikelist: () => {
-            return getstore('setLikelist');
+            return getstore('Likelist');
         },
         getsequenceList: () => {
             return getstore('sequenceList');
         },
         getIndex: () => {
             return getstore('currentIndex');
+        },
+        getHistory: () => {
+            return getstore('history');
         }
     },
     setstore: {
@@ -36,13 +39,16 @@ const store = {
             setstore('setSearchHisory', key);
         },
         setLikelist: (key) => {
-            setstore('setLikelist', key);
+            setstore('Likelist', key);
         },
         setsequenceList: (key) => {
             setstore('sequenceList', key);
         },
         setIndex: (key) => {
             return setstore('currentIndex', key);
+        },
+        setHistory: (key) => {
+            setstore('history', key);
         }
     }
 }

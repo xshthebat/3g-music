@@ -101,6 +101,7 @@ export default {
     text-align: center;
     line-height: 65px;
     font-size: 15px;
+    color: #000;
     border-bottom: 1px solid #00000017;
 }
 .confirm-operate{
@@ -113,10 +114,11 @@ export default {
      line-height: 30px;
      font-size: 15px;
      text-align: center;
+         color: red;
 }
 .left{
     border-right: 1px solid #00000017;
-    color: red;
+    /* color: red; */
 }
 @keyframes confirm-fadein {
   0% {

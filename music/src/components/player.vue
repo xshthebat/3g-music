@@ -83,8 +83,8 @@
           <img class="minicd" :src="currentSong.image" :class="cdCls" width="40" height="40">
       </div>
       <div class="minitext">
-          <h2 class="minname" v-html="currentSong.name"></h2>
-          <p class="mindesc" v-html="currentSong.singer"></p>
+          <h2 class="minname" v-html="name"></h2>
+          <p class="mindesc" v-html="singername"></p>
       </div>
       <div class="procontrol">
         <progresscirle :radius="radius" :percent="percent">
@@ -131,6 +131,24 @@ export default {
   },
   mounted() {},
   computed: {
+    singername(){
+      let str = this.currentSong.singer;
+      if (str) {
+        if (str.length >= 20) {
+          str = str.slice(0, 20) + "...";
+        }
+      }
+      return str;
+    },
+    name() {
+      let str = this.currentSong.name;
+      if (str) {
+        if (str.length >= 10) {
+          str = str.slice(0, 10) + "...";
+        }
+      }
+      return str;
+    },
     isenter() {
       return this.entering ? true : false;
     },
@@ -159,7 +177,7 @@ export default {
     dataUrl() {
       // return this.currentSong?'https://dl.stream.qqmusic.qq.com/C100' + this.currentSong.mid + '.m4a?fromtag=46':null;
       // return this.currentSong.url ? this.currentSong.url :'https://dl.stream.qqmusic.qq.com/C100undefined.m4a?fromtag=46';
-      return this.currentSong.url ? this.currentSong.url :null;
+      return this.currentSong.url ? this.currentSong.url : null;
     },
     ...mapGetters([
       "fullScreen",
@@ -173,8 +191,8 @@ export default {
     ])
   },
   methods: {
-    firstPlay(){
-            this.$refs.audio.play();
+    firstPlay() {
+      this.$refs.audio.play();
     },
     Enter(el, done) {
       setTimeout(() => {
@@ -493,7 +511,9 @@ export default {
       });
     },
     ready() {
-      console.log("播放中");
+      
+      this.setHistory(this.currentSong);
+      console.log(this.currentSong);
       if (!this.playing) {
         this.setPlayingState(true);
       }
@@ -571,7 +591,8 @@ export default {
       setPlayMode: "SET_PLAY_MODE",
       setPlayList: "SET_PLAYLIST",
       setlikeSongs: "SET_LIKE_LIST",
-      setstate: "SET_PLAYING_STATE"
+      setstate: "SET_PLAYING_STATE",
+      setHistory:"SET_USERHISTORY"
     }),
     ...mapActions({
       likeSong: "likeSong",
@@ -613,14 +634,14 @@ export default {
     playing(newPlaying) {
       if (newPlaying) {
         this.$nextTick(() => {
-        this.$refs.audio.play();
-        if (!this.currentLyric) {
-          this.getLyric(); //加载歌词;
-        }
+          this.$refs.audio.play();
+          if (!this.currentLyric) {
+            this.getLyric(); //加载歌词;
+          }
         });
       } else {
         this.$nextTick(() => {
-        this.$refs.audio.pause();
+          this.$refs.audio.pause();
         });
       }
     },

@@ -9,7 +9,8 @@ import rankdetail from './../components/rankdetail'
 import songListdetail from './../components/songListdetail'
 import login from "./../components/login";
 import checkcode from "./../components/checkcode";
-import personinf from "./../components/personinf";
+import logincode from "./../components/logincode.vue";
+import person from "./../components/person";
 Vue.use(Router)
 export default new Router({
     routes: [{
@@ -60,8 +61,12 @@ export default new Router({
             component: checkcode
         },
         {
-            path: '/login/checkcode/personinformation',
-            component: personinf
+            path: '/login/logincode',
+            component: logincode
+        },
+        {
+            path: '/person',
+            component: person
         }
     ]
 })

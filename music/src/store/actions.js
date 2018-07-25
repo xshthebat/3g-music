@@ -1,6 +1,8 @@
 import * as types from './mutation-types';
 import { playMode } from "../common/js/config";
 import { shuffle } from "../common/js/util"
+import { checklogin, deletesession } from "../api/lgoin";
+import { signupMode } from "../common/js/config";
 
 function _findindex(list, song) {
     return list.findIndex((item) => {
@@ -135,4 +137,49 @@ export const insertSong = function({ commit, state }, song) {
     commit(types.SET_CURRENT_INDEX, currentIndex);
     // commit(types.SET_PLAYING_STATE, true);
     commit(types.SET_FULL_SCREEN, true);
+}
+export const logins = function({ commit, state }, data) {
+
+    commit(types.SET_LOGIN, true);
+    commit(types.SET_USERNUM, data.usernum);
+    commit(types.SET_USERNAME, data.username);
+    commit(types.SET_USERWORDS, data.userword);
+    commit(types.SET_USERIMG, data.userimg);
+    // commit(types.SET_USERHISTORY, data.history);
+    //更新本地喜欢列表
+    //更新本地历史列表
+}
+export const dislogin = function({ commit, state }) {
+    deletesession().then(res => {
+        commit(types.SET_LOGIN, false);
+        commit(types.SET_SIGNUP, true);
+        commit(types.SET_SIGNUPFLAG, signupMode.nosignup);
+        commit(types.SET_USERNUM, "");
+        commit(types.SET_USERNUM, "");
+        commit(types.SET_USERWORDS, "");
+        commit(types.SET_USERIMG, "");
+        commit(types.SET_LIKE_LIST, []);
+        commit(types.SET_USERHISTORY, []);
+    });
+    //清空本地喜欢列表
+    //清空本地历史列表
+}
+export const checklogins = function({ commit, state }) {
+    checklogin().then((res) => {
+        console.log(res);
+        if (res.err) {
+            commit(types.SET_LOGIN, false);
+            commit(types.SET_SIGNUPFLAG, signupMode.nosignup);
+            commit(types.SET_USERNUM, "");
+            commit(types.SET_USERNAME, "");
+            commit(types.SET_USERWORDS, "");
+            commit(types.SET_USERIMG, "");
+        } else {
+            commit(types.SET_LOGIN, true);
+            commit(types.SET_USERNUM, res.data.usernum);
+            commit(types.SET_USERNAME, res.data.username);
+            commit(types.SET_USERWORDS, res.data.userword);
+            commit(types.SET_USERIMG, res.data.userimg);
+        }
+    })
 }

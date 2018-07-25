@@ -102,6 +102,7 @@ export default {
         return;
       }
       this.page++;
+      console.log(this.query, this.page, this.perpage, this.zhida);
       search(this.query, this.page, this.perpage, this.zhida).then(res => {
         if (res.code === 0) {
           console.log(res);
@@ -186,7 +187,19 @@ export default {
   display: flex;
   align-items: center;
   padding: 15px 0;
-  border-bottom: 1px solid #00000026;
+  position: relative;
+  /* border-bottom: 1px solid #00000026; */
+}
+.suggest-item::after{
+     content: " ";
+    position: absolute;
+    left: 0;
+    bottom: 0px;
+    width: 100%;
+    height: 1px;
+    background-color: #31c27c;
+    -webkit-transform: scaleY(0.3);
+    transform: scaleY(0.3);
 }
 .suggest-icon {
   flex: 0 0 30px;

@@ -31,6 +31,8 @@ import confirm from "../base/confirm";
 import inputbox from "../base/inputbox";
 import buttombox from "../base/buttombox";
 import loading from "../base/loading";
+import {signupMode} from "../common/js/config.js";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 export default {
   data() {
     return {
@@ -46,8 +48,17 @@ export default {
       text: null,
       confirmtext: "",
       submitit: false,
-      time: null
+      time: null,
+      haslogin:false,
+      pass:false
     };
+  },
+  activated() {
+    if(!this.signup||this.signupflag !==signupMode.nosignup||this.login){
+       this.$router.push("/");
+    } else{
+      this.setsignuoflag(signupMode.nosignup);
+    }
   },
   methods: {
     vercodeerrr(err) {
@@ -55,7 +66,7 @@ export default {
       console.log(err);
     },
     back() {
-       this.$router.push("/");
+      this.$router.push("/");
     },
     getinputvercode(newval) {
       this.vercode = newval;
@@ -81,26 +92,45 @@ export default {
             this.confirmtext = res.errtype;
             this.$refs.confirm.show();
           } else {
-            this.confirmtext = res.data;
-            this.$refs.confirm.show();
+            this.pass = true;
+            this.haslogin = res.data.haslogin;
+            if (!res.data.haslogin) {
+              this.confirmtext = res.data.text;
+              this.$refs.confirm.show();
+            } else {
+              this.confirmtext = res.data.text;
+              this.$refs.confirm.show();
+            }
             let self = this;
-            this.time = setTimeout(()=>{
+            this.time = setTimeout(() => {
               self.time = null;
-            },60000);
+            }, 60000);
           }
           this.$refs.vercodes.getvercodes();
         });
       }
     },
     confirm() {
-      console.log(this.confirmtext);
-      if (this.confirmtext === "验证发送成功请查看邮箱") {
+      console.log(this.haslogin);
+      if(!this.pass){
+        return;
+      }
+       this.pass = false;
+      if (!this.haslogin) {
+        this.setsignuoflag(signupMode.postemail);
         this.$router.push("/login/checkcode");
+      } else{
+        this.setsignuoflag(signupMode.checklogin);
+        this.$router.push("/login/logincode");
       }
     },
-    canl(){
-
-    }
+    canl() {},
+    ...mapMutations({
+      setsignuoflag:'SET_SIGNUPFLAG'
+    })
+  },
+  computed:{
+    ...mapGetters(["signup","signupflag","login"])
   },
   watch: {
     vercode(newval) {
@@ -122,11 +152,11 @@ export default {
         this.disabled = false;
       }
     },
-    time(newval){
-      if(newval){
+    time(newval) {
+      if (newval) {
         console.log(this.time);
         this.$refs.vercodes.show = false;
-      } else{
+      } else {
         this.$refs.vercodes.show = true;
       }
     }
@@ -189,7 +219,7 @@ export default {
   padding-top: 100px;
 }
 .login-box {
-  padding: 0 50px;
+  padding: 0 40px;
 }
 .loading-wrap {
   position: absolute;

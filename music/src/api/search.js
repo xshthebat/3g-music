@@ -11,7 +11,8 @@ export function getHotKey() {
     return jsonp(url, data, options);
 }
 export function search(query, page, perpage, zhida) {
-    let url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp';
+    // let url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp';
+    let url = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp';
     let data = Object.assign({}, commonParams, {
         w: query, //值
         p: page,

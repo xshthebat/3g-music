@@ -16,7 +16,7 @@ import mheader from './components/mheader'
 import tab from './components/tab'
 import player from './components/player'
 import store from './common/js/store.js';
-import { mapGetters,mapMutations} from "vuex"; 
+import { mapGetters,mapMutations,mapActions} from "vuex"; 
 export default {
  components:{
    mheader,
@@ -33,6 +33,7 @@ export default {
   this.$router.replace(histroylook)
  },
  mounted(){
+   this.checklogins();
     let m = document.querySelector('#app');
     m.addEventListener('touchend',this.firstPlay);
  },
@@ -48,7 +49,8 @@ export default {
       this.stop = true;
     }
      },0)
-   }
+   },
+   ...mapActions(["checklogins"])
  },
  watch: {
     stop () {

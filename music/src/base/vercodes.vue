@@ -31,7 +31,7 @@ export default {
     clearvercode() {
       this.vercode = "";
     },
-    getvercodes() {
+    getvercodes() {``                           
       this.clearvercode();
       getvercode().then(res => {
         if (res.err) {

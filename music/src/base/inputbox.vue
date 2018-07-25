@@ -56,7 +56,7 @@ export default {
       }
     },
     showicon() {
-      return this.show ? "passshow" : "passdishow";
+      return this.show ? "passshow":"passdishow" ;
     }
   },
   watch: {
@@ -96,6 +96,7 @@ export default {
   line-height: 20px;
   border: 0;
   outline: none;
+  width:80%;
 }
 .login-dismiss {
   width: 20px;

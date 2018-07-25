@@ -42,8 +42,8 @@ import { ERR_OK } from "../api/config";
 import slider from "../base/slide";
 import scroll from "../base/scroll";
 import loading from "../base/loading";
-import {playlistMixin} from '../common/js/mixin';
-import { mapMutations } from 'vuex'
+import { playlistMixin } from "../common/js/mixin";
+import { mapMutations } from "vuex";
 export default {
   mixins: [playlistMixin],
   data() {
@@ -59,13 +59,13 @@ export default {
   },
   methods: {
     ...mapMutations({
-      setSonglist: 'SET_SONGLIST'
+      setSonglist: "SET_SONGLIST"
     }),
-     handlePlaylist (playlist) {
-        const bottom = playlist.length > 0 ? '60px' : '';
-        this.$refs.recommend.style.bottom = bottom;
-        this.$refs.scroll.refresh();
-      },
+    handlePlaylist(playlist) {
+      const bottom = playlist.length > 0 ? "60px" : "";
+      this.$refs.recommend.style.bottom = bottom;
+      this.$refs.scroll.refresh();
+    },
     _getRecommend() {
       getRecommend().then(res => {
         if (res.code == ERR_OK) {
@@ -89,15 +89,15 @@ export default {
         if (this.$refs.scroll) {
           this.$refs.scroll.refresh();
           this.checkLoaded = true;
-          console.log('初始化');
+          console.log("初始化");
         }
       }
     },
-    selectItem(item){
+    selectItem(item) {
       this.$router.push({
         path: `/recommend/${item.dissid}`
-      })
-       this.setSonglist(item)
+      });
+      this.setSonglist(item);
     }
   },
   components: {
@@ -136,7 +136,7 @@ export default {
   display: flex;
   align-items: center;
   padding: 0 20px 20px 20px;
-  /* border-bottom: 0.5px solid #000000;  */
+  position: relative;
 }
 .icons {
   flex: 0 0 60px;

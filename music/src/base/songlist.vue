@@ -30,7 +30,11 @@ export default {
   },
   methods: {
     getDesc(song) {
-      return `${song.singer} - ${song.album}`;
+      let str = `${song.singer} - ${song.album}`;
+      if(str.length>=20){
+        str = str.slice(0,17)+'...';
+      } 
+      return str;
     },
     selectItem(song, index) {
       this.$emit("select", song, index);
@@ -61,7 +65,18 @@ export default {
   box-sizing: border-box;
   height: 64px;
   font-size: 14px;
-  border-bottom: 1px #00000024 solid;
+  position: relative;
+}
+.songitem:after{
+      content: " ";
+    position: absolute;
+    left: 0;
+    bottom: 0px;
+    width: 100%;
+    height: 1px;
+    background-color: #31c27c;
+    -webkit-transform: scaleY(0.3);
+    transform: scaleY(0.3);
 }
 .content {
   flex: 1;

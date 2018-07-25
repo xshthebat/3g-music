@@ -14,7 +14,7 @@
               <scroll ref="scrollRef" :data="sequenceList" class="list-content" >
                 <transition-group name="play-list" tag="ul">
                   <li :key="item.id" ref="listRef" class="play-list-item" v-for="(item,index) in sequenceList" @click="selectItem(item,index)">
-                    <span class="list-item-text" :class="getCurrentIcon(item)">{{ item.name }}</span>
+                    <span class="list-item-text" :class="getCurrentIcon(item)">{{ nomallizename(item.name) }}</span>
                     <span  class="list-item-like" @click.stop="toggleLike(item)">
                       <i class="list-like-icon" :class="likeit(item)"></i>
                     </span>
@@ -157,6 +157,13 @@ export default {
         return song.id === current.id
       })
       this.$refs.scrollRef.scrollToElement(this.$refs.listRef[index], 300);
+    },
+     nomallizename(str){
+       if(str){
+         if(str.length>20);
+         str = str.slice(0,15)+'...'; 
+       }  
+       return str;
     },
     ...mapMutations({
       setPlayingState: "SET_PLAYING_STATE",

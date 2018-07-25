@@ -183,7 +183,19 @@ export default {
   display: flex;
   padding: 32px 0 15px 10px;
   align-items: center;
-  border-bottom: 1px solid #00000024;
+  /* border-bottom: 1px solid #00000024; */
+  position: relative;
+}
+.list-group-item::after{
+   content: " ";
+    position: absolute;
+    left: 0;
+    bottom: 0px;
+    width: 100%;
+    height: 1px;
+    background-color: #31c27c;
+    -webkit-transform: scaleY(0.3);
+    transform: scaleY(0.3);
 }
 .avatar {
   width: 50px;
