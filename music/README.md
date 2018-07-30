@@ -18,5 +18,3 @@ npm run dev //运行
 npm run build //打包
 ```
 配合后台使用更佳
-
-项目预览图
