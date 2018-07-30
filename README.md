@@ -5,6 +5,4 @@
 
 ### 联系方式 
 感谢 star 和fork 欢迎提issues
-
-![image](https://github.com/xshthebat/gitimg/blob/master/weixin.jpg)
-<img src="https://github.com/xshthebat/gitimg/blob/master/weixin.jpg" width="564" height="786" alt="我是缩小后并居中的图"></img>
+<img src="https://github.com/xshthebat/gitimg/blob/master/weixin.jpg" width="287" height="400" alt="我是缩小后并居中的图"></img>
