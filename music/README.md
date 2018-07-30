@@ -42,3 +42,5 @@ npm run build //打包
 
 ## 免责声明 
 歌曲来自qq音乐接口 本app不做任何商业用途只做练习使用,侵权必删。
+## License 
+MIT
