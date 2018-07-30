@@ -1,4 +1,4 @@
-# 移动端音乐 3gmusic
+# 移动端音乐 3gmusic   [预览,请在移动端下体验](http://123.207.138.78)
 ### [后台项目](https://github.com/xshthebat/3g-music/tree/master/appmusic)
 ### [前端项目](https://github.com/xshthebat/3g-music/tree/master/music)
 具体详情见路径页
