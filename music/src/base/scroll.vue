@@ -36,6 +36,10 @@ export default {
     beforeScroll: {
       type: Boolean,
       default: false
+    },
+    scrollX:{
+      type:Boolean,
+      default:false
     }
   },
   mounted() {
@@ -50,8 +54,10 @@ export default {
       }
       this.scroll = new BScroll(this.$refs.wrapper, {
         probeType: this.probeType,
-        click: this.click
+        click: this.click,
+       scrollX:this.scrollX
       });
+      // console.log(this.scroll);
       // console.log('scroll初始化成功');
       if (this.listenScroll) {
         // console.log('监听scroll');

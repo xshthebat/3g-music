@@ -15,7 +15,7 @@
         </ul>
       </li>
     </ul>
-    <div class="list-shortcut" @touchstart.stop.prevent="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove" @touchend.stop>
+    <div class="list-shortcut" @touchstart.stop.prevent="onShortcutTouchStart" @touchmove.stop.prevent="onShortcutTouchMove" @touchend.stop v-show="show">
       <ul>
         <li v-for="(item,index) in shortcutList" class="itme" :class="{'current': currentIndex === index}" :data-index="index"> 
           {{item}}
@@ -45,8 +45,17 @@ export default {
     return {
       currentIndex: 0, //位置
       scrollY: -1, //位置
-      diff: -1
+      diff: -1,
+      show:true
     };
+  },
+  activated(){
+    // console.log(this.$el.clientHeight);
+    if(this.$el.clientHeight<398.9){
+        this.show = false;
+    } else{
+       this.show = true;
+    }
   },
   computed: {
     shortcutList() {

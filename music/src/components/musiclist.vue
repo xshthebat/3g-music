@@ -156,7 +156,8 @@ export default {
 .icon-back {
   display: block;
   padding: 8px;
-  font-size: 16px;
+  /* font-size: 32px; */
+      padding: 16px;
   background-image: url(../common/image/back.svg);
 }
 .filter {

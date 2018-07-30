@@ -89,16 +89,16 @@ export default {
           this.submitit = false;
           console.log(res);
           if (res.err) {
-            this.confirmtext = res.errtype;
+            this.confirmtext = '验证失败,请检查';
             this.$refs.confirm.show();
           } else {
             this.pass = true;
             this.haslogin = res.data.haslogin;
             if (!res.data.haslogin) {
-              this.confirmtext = res.data.text;
+              this.confirmtext = '发送成功';
               this.$refs.confirm.show();
             } else {
-              this.confirmtext = res.data.text;
+              this.confirmtext = '发送成功';
               this.$refs.confirm.show();
             }
             let self = this;

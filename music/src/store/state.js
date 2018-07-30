@@ -21,8 +21,6 @@ const state = {
     usernum: '', //用户名
     username: '', //昵称
     userwords: '', //用户签名
-    nearplay: [], //用户最近播放
-    userlike: [], //用户喜欢
     userimg: 'default', //用户头像
     userHistory: createSonglist(store.getstore.getHistory()).length ? createSonglist(store.getstore.getHistory()) : [], //用户历史 默认为空 登陆后才有历史
 }

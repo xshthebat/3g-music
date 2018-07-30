@@ -53,8 +53,10 @@
               </div>
                <div class="operators">
                 <!-- 播放模式 -->
+                <div class="mode-wrapper">
                  <div class="musicicon i-left ab"  @click="changeMode">
                     <i :class="iconMode" ></i>
+                </div>
                 </div>
                 <!-- 上一首 -->
                 <div class="musicicon i-left" >
@@ -69,8 +71,10 @@
                   <i  @click="next" class="icon-next"  ref="next"></i>
                 </div>
                 <!-- 喜欢 -->
+                <div class="mode-wrapper">
                 <div class="musicionc i-right ac">
                   <i @click="toggleLike" :class="likeIcon"></i>
+                </div>
                 </div>
               </div>
           </div>
@@ -82,9 +86,11 @@
       <div class="minicon" >
           <img class="minicd" :src="currentSong.image" :class="cdCls" width="40" height="40">
       </div>
+      <div class="minitext-wrapper">
       <div class="minitext">
           <h2 class="minname" v-html="name"></h2>
           <p class="mindesc" v-html="singername"></p>
+      </div>
       </div>
       <div class="procontrol">
         <progresscirle :radius="radius" :percent="percent">
@@ -512,7 +518,7 @@ export default {
     },
     ready() {
       
-      this.setHistory(this.currentSong);
+      this.setHistory({songs:this.currentSong,key:false});
       console.log(this.currentSong);
       if (!this.playing) {
         this.setPlayingState(true);
@@ -684,7 +690,7 @@ export default {
 .player-top {
   position: relative;
   top: 0;
-  left: 6px;
+
   z-index: 50;
   transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32);
 }
@@ -695,13 +701,13 @@ export default {
 }
 .player-icon-back {
   display: block;
-  height: 16px;
-  width: 16px;
+  height: 32px;
+  width: 32px;
   background-image: url(../common/image/back.svg);
 }
 .player-title {
   width: 70%;
-  margin: 15px auto 0;
+  margin: 0.75rem auto 0;
   line-height: 40px;
   text-align: center;
   font-size: 18px;
@@ -732,18 +738,16 @@ export default {
   border-radius: 50%;
 }
 .cd-wrapper {
-  position: absolute;
-  left: 10%;
-  top: 0;
-  width: 80%;
+  margin: 0 auto;
+  width: 40vh;
   box-sizing: border-box;
-  height: 100%;
+  height: 40vh;
 }
 .player-middle {
   position: fixed;
   width: 100%;
-  top: 80px;
-  bottom: 170px;
+  top: 4.5rem;
+  bottom: 9.5rem;
   white-space: nowrap;
   font-size: 0;
 }
@@ -752,12 +756,11 @@ export default {
   vertical-align: top;
   position: relative;
   width: 100%;
-  height: 0;
-  padding-top: 80%;
+  height: 100%;
 }
 .player-bottom {
   position: absolute;
-  bottom: 50px;
+  bottom: 1rem;
   width: 100%;
   transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32);
 }
@@ -826,6 +829,9 @@ export default {
   width: 32px;
   height: 32px;
 }
+.minitext-wrapper{
+  height: 42px;
+}
 .icon-unlike {
   display: inline-block;
   background-image: url(../common/image/unlike.svg);
@@ -873,6 +879,9 @@ export default {
   background-image: url(../common/image/iconplay.svg);
   width: 64px;
   height: 64px;
+}
+.mode-wrapper{
+  height: 34.4px;
 }
 .ab {
   position: absolute;
@@ -1016,7 +1025,9 @@ export default {
 }
 .cd-lyric-wrapper {
   width: 80%;
-  margin: 30px auto 0 auto;
+  position: absolute;
+  bottom: 0;
+  left: 10%;
   overflow: hidden;
   text-align: center;
 }

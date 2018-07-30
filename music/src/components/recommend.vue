@@ -22,7 +22,7 @@
             </div>
             <div class="text1">
               <h2 class="name" v-html="item.creator.name"></h2>
-              <p class="desc" v-html="item.dissname"></p>
+              <p class="descc" v-html="item.dissname"></p>
             </div>
           </li>
         </ul>
@@ -155,7 +155,7 @@ export default {
 .name {
   margin-bottom: 10px;
 }
-.desc {
+.descc {
   color: #999;
 }
 .loading-container {

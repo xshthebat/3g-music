@@ -3,6 +3,7 @@ import { playMode } from "../common/js/config";
 import { shuffle } from "../common/js/util"
 import { checklogin, deletesession } from "../api/lgoin";
 import { signupMode } from "../common/js/config";
+import { updatamessage } from "../api/lgoin";
 
 function _findindex(list, song) {
     return list.findIndex((item) => {
@@ -37,18 +38,17 @@ export const selectPlay = function({ commit, state }, { list, index }) {
     commit(types.SET_FULL_SCREEN, true); //默认全屏显示播放器
     // commit(types.SET_PLAYING_STATE, true); //开启播放
 }
-
 export const likeSong = function({ commit, state }, { song }) {
     if (_findindex(state.likelist, song) !== -1) {
         return;
     } //检测是否存在
-    commit(types.SET_LIKE_LIST, song); //加入喜欢队列
+    commit(types.SET_LIKE_LIST, { songs: song, key: false }); //加入喜欢队列
 }
 export const unlikeSong = function({ commit, state }, { song }) {
     if (_findindex(state.likelist, song) === -1) {
         return; //未查询到歌曲
     }
-    commit(types.DEL_LIKE_LIST, _findindex(state.likelist, song));
+    commit(types.DEL_LIKE_LIST, { index: _findindex(state.likelist, song), key: false });
 }
 export const deleteSonglist = function({ commit, state }) {
     commit(types.SET_PLAYLIST, []); //播放列表空
@@ -99,56 +99,57 @@ export const clearHistory = function({ commit }) {
     commit(types.SET_SEARCHHISTORY, []);
 }
 export const insertSong = function({ commit, state }, song) {
-    let playlist = state.playlist.slice(0);
-    let sequenceList = state.sequenceList.slice(0);
-    let currentIndex = state.currentIndex;
-    //记录当前歌曲
-    let currentSong = playlist[currentIndex];
+        let playlist = state.playlist.slice(0);
+        let sequenceList = state.sequenceList.slice(0);
+        let currentIndex = state.currentIndex;
+        //记录当前歌曲
+        let currentSong = playlist[currentIndex];
 
-    //查找是否已存在
-    let fpIndex = _findindex(playlist, song);
-    currentIndex++; //当前歌曲下一首为新插入歌曲
+        //查找是否已存在
+        let fpIndex = _findindex(playlist, song);
+        currentIndex++; //当前歌曲下一首为新插入歌曲
 
-    playlist.splice(currentIndex, 0, song); //往数组指定位置加当前歌曲；
-    if (fpIndex !== -1) {
-        //以前有歌曲
-        if (currentIndex > fpIndex) {
-            //插入歌曲下标比以前大 
-            playlist.splice(fpIndex, 1); //直接删除重复歌曲
-            currentIndex--;
-        } else {
-            playlist.splice(fpIndex + 1, 1); //插入后下标增加
+        playlist.splice(currentIndex, 0, song); //往数组指定位置加当前歌曲；
+        if (fpIndex !== -1) {
+            //以前有歌曲
+            if (currentIndex > fpIndex) {
+                //插入歌曲下标比以前大 
+                playlist.splice(fpIndex, 1); //直接删除重复歌曲
+                currentIndex--;
+            } else {
+                playlist.splice(fpIndex + 1, 1); //插入后下标增加
+            }
         }
-    }
-    let currentSIndex = _findindex(sequenceList, currentSong) + 1; //找到插入前播放的下标 
-    // //查找歌曲是否已在列表中
-    let fsIndex = _findindex(sequenceList, song);
-    sequenceList.splice(currentSIndex, 0, song);
-    if (fsIndex > -1) {
-        if (currentSIndex > fsIndex) {
-            sequenceList.splice(fsIndex, 1);
-        } else {
-            sequenceList.splice(fsIndex + 1, 1); //同上
+        let currentSIndex = _findindex(sequenceList, currentSong) + 1; //找到插入前播放的下标 
+        // //查找歌曲是否已在列表中
+        let fsIndex = _findindex(sequenceList, song);
+        sequenceList.splice(currentSIndex, 0, song);
+        if (fsIndex > -1) {
+            if (currentSIndex > fsIndex) {
+                sequenceList.splice(fsIndex, 1);
+            } else {
+                sequenceList.splice(fsIndex + 1, 1); //同上
+            }
         }
+        commit(types.SET_PLAYLIST, playlist);
+        commit(types.SET_SEQUENCE_LIST, sequenceList);
+        console.log(currentIndex);
+        commit(types.SET_CURRENT_INDEX, currentIndex);
+        // commit(types.SET_PLAYING_STATE, true);
+        commit(types.SET_FULL_SCREEN, true);
     }
-    commit(types.SET_PLAYLIST, playlist);
-    commit(types.SET_SEQUENCE_LIST, sequenceList);
-    console.log(currentIndex);
-    commit(types.SET_CURRENT_INDEX, currentIndex);
-    // commit(types.SET_PLAYING_STATE, true);
-    commit(types.SET_FULL_SCREEN, true);
-}
-export const logins = function({ commit, state }, data) {
-
-    commit(types.SET_LOGIN, true);
-    commit(types.SET_USERNUM, data.usernum);
-    commit(types.SET_USERNAME, data.username);
-    commit(types.SET_USERWORDS, data.userword);
-    commit(types.SET_USERIMG, data.userimg);
-    // commit(types.SET_USERHISTORY, data.history);
-    //更新本地喜欢列表
-    //更新本地历史列表
-}
+    // export const logins = function({ commit, state }, data) {
+    //     console.log('logins')
+    //     commit(types.SET_LOGIN, true);
+    //     commit(types.SET_USERNUM, data.usernum);
+    //     commit(types.SET_USERNAME, data.username);
+    //     commit(types.SET_USERWORDS, data.userword);
+    //     commit(types.SET_USERIMG, data.userimg);
+    //     checklogins({ commit, state });
+    //     // commit(types.SET_USERHISTORY, data.history);
+    //     //更新本地喜欢列表
+    //     //更新本地历史列表
+    // }
 export const dislogin = function({ commit, state }) {
     deletesession().then(res => {
         commit(types.SET_LOGIN, false);
@@ -158,28 +159,40 @@ export const dislogin = function({ commit, state }) {
         commit(types.SET_USERNUM, "");
         commit(types.SET_USERWORDS, "");
         commit(types.SET_USERIMG, "");
-        commit(types.SET_LIKE_LIST, []);
-        commit(types.SET_USERHISTORY, []);
+        commit(types.SET_LIKE_LIST, { songs: [], key: false });
+        commit(types.SET_USERHISTORY, { songs: [], key: false });
     });
-    //清空本地喜欢列表
-    //清空本地历史列表
 }
 export const checklogins = function({ commit, state }) {
-    checklogin().then((res) => {
-        console.log(res);
-        if (res.err) {
-            commit(types.SET_LOGIN, false);
-            commit(types.SET_SIGNUPFLAG, signupMode.nosignup);
-            commit(types.SET_USERNUM, "");
-            commit(types.SET_USERNAME, "");
-            commit(types.SET_USERWORDS, "");
-            commit(types.SET_USERIMG, "");
-        } else {
-            commit(types.SET_LOGIN, true);
-            commit(types.SET_USERNUM, res.data.usernum);
-            commit(types.SET_USERNAME, res.data.username);
-            commit(types.SET_USERWORDS, res.data.userword);
-            commit(types.SET_USERIMG, res.data.userimg);
-        }
-    })
+    // if (state.login) {
+    //     console.log('已经登陆');
+    //     // updatamessage
+    // } else {
+    return new Promise((ress, resjj) => {
+        checklogin().then((res) => {
+            console.log(res);
+            if (res.err) {
+                commit(types.SET_LOGIN, false);
+                commit(types.SET_SIGNUPFLAG, signupMode.nosignup);
+                commit(types.SET_USERNUM, "");
+                commit(types.SET_USERNAME, "");
+                commit(types.SET_USERWORDS, "");
+                commit(types.SET_USERIMG, "");
+            } else {
+                if (res.data.userdata) {
+                    let userdata = JSON.parse(res.data.userdata);
+                    console.log(userdata);
+                    commit(types.SET_USERHISTORY, { songs: userdata.userHistory, key: true });
+                    commit(types.SET_LIKE_LIST, { songs: userdata.likelist, key: true });
+                }
+                commit(types.SET_LOGIN, true);
+                commit(types.SET_USERNUM, res.data.usernum);
+                commit(types.SET_USERNAME, res.data.username);
+                commit(types.SET_USERWORDS, res.data.userword);
+                commit(types.SET_USERIMG, res.data.userimg);
+            }
+            ress('ok');
+        })
+    });
+    // }
 }

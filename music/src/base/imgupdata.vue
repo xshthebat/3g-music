@@ -1,13 +1,13 @@
 <template>
 <transition name="updata">
-    <div class="imgupdata" v-show="flag">
+    <div :class="{'imgupdata':true}" v-show="flag">
         <div class="loginback" @click="back" ref="back"><i class="back-icon"></i></div>
         <div class="logintitle"><p class="title_p">{{title}}</p></div>
-        <div class="choose" >
+        <div :class="{'choose':true}">   
              <div class="imgprev"><img :src="imgsrc" ref='imgview' class="imgview"></div>
-                <canvas id="canvas" ref="canvas"></canvas>
-                <canvas id="canvas" ref="canvas2"></canvas>
-                <div  class="choosebox" >
+                <canvas id="canvas" ref="canvas" class="none"></canvas>
+                <canvas id="canvas" ref="canvas2" class="none"></canvas>
+                <div  class="choosebox" v-show="inputshow">
                     <buttombox :disabled="!updataimg" :button="`上传图片`"  class="bottomboxs" @submit="submit"></buttombox>
                     <buttombox :disabled="updataimg" :button="`选择图片`"  class="bottomboxs" ></buttombox>                    
                     <label for="file_input" class="label" >
@@ -18,7 +18,7 @@
         <div class="imgchoose" v-show="change" ref="bimg" @touchstart="touchstart" @touchmove="touchmove" @mousewheel="mousewheel">
           <div class="tbox"></div>
         </div>
-        <div class="operate" v-show="change">
+        <div :class="{'operate1':!bottom,'operate2':bottom}" v-show="change">
            <buttombox :disabled="false" :button="`确定`"  class="operatebottom" @submit="choose"></buttombox>
            <buttombox :disabled="false" :button="`取消`"  class="operatebottom" @submit="nochange"></buttombox>
         </div>
@@ -28,20 +28,24 @@
 <script>
 import saveimg from "../api/saveimg.js";
 import buttombox from "../base/buttombox";
-import {mapMutations, mapActions} from "vuex";
+import { mapMutations, mapActions } from "vuex";
+import { playlistMixin } from "../common/js/mixin.js";
+import AlloyFinger from "alloyfinger";
 export default {
-  props:{
-    imgsrc:{
-      type:String,
-      default:''
+  props: {
+    imgsrc: {
+      type: String,
+      default: ""
     }
   },
-  activated(){
+  mixins: [playlistMixin],
+  activated() {
     console.log(this.imgsrc);
   },
   data() {
     return {
       flag: false,
+      bottom: false,
       title: "选择图片",
       change: false,
       left: 0,
@@ -53,7 +57,8 @@ export default {
       nativewidth: 0,
       img: null,
       type: "",
-      updataimg: false
+      updataimg: false,
+      inputshow:true
     };
   },
   computed: {
@@ -68,9 +73,16 @@ export default {
     }
   },
   activated() {
-    console.log('haha');
+    console.log("haha");
   },
   methods: {
+    handlePlaylist(val) {
+      if (val.length) {
+        this.bottom = true;
+      } else {
+        this.bottom = false;
+      }
+    },
     submit() {
       console.log(this.updataimg);
       if (!this.updataimg) {
@@ -80,10 +92,10 @@ export default {
 
       saveimg(this.blob).then(res => {
         console.log(res.data);
-         if(!res.err){
-           this.checklogins();
-         } 
-         this.back();
+        if (!res.err) {
+          this.checklogins();
+        }
+        this.back();
       });
       // 图片上传 回掉
       //返回
@@ -92,44 +104,28 @@ export default {
     },
     choose() {
       //上传图片
-      console.log("上传图片");
-      console.log(`图片逻辑大小height:${this.height},width:${this.width}`); //后台先放缩根据实际大小 对应倍数
       console.log(
-        `裁剪起始点(${(window.innerWidth - 120) * 0.5 -
+        `实际大小${this.nativeheight},${this.nativewidth},逻辑大小${
+          this.height
+        },${this.width}裁剪起始点(${(window.innerWidth - 120) * 0.5 -
           this.left},${(window.innerHeight - 120) * 0.5 - this.top})`
       );
       //回调完成后
       this._cutsmaval().then(img => {
+        // alert('haha');
         console.log(img.blob);
         this.blob = img.blob;
         this.updataimg = true;
         this.$refs.imgview.src = img.src;
+        this.nochange();
       });
-      this.nochange();
       //等待预览图 改变选择图片为 确认头像  逻辑分离,,,
     },
     _cutsmaval() {
       return new Promise((res, rej) => {
         let ctx = this.$refs.canvas.getContext("2d");
-        let maxWidth = 400,
-          maxHeight = 400;
         let targetHeight = this.height;
         let targetWidth = this.width;
-        if (this.nativewidth > maxWidth || this.nativeheight > maxHeight) {
-          //图片过大 按照宽高比限定
-          if (this.nativewidth / this.nativeheight > maxWidth / maxHeight) {
-            //太宽
-            targetWidth = maxWidth;
-            targetHeight = Math.round(
-              maxWidth * (this.nativeheight / this.nativewidth)
-            );
-          } else {
-            targetHeight = maxHeight;
-            targetWidth = Math.round(
-              maxHeight * (this.nativewidth / this.nativeheight)
-            );
-          }
-        }
         //按照图示 缩放
         this.$refs.canvas.width = targetWidth;
         this.$refs.canvas.height = targetHeight;
@@ -137,8 +133,6 @@ export default {
         //图片压缩
         ctx.drawImage(this.img, 0, 0, targetWidth, targetHeight);
         let url = this.$refs.canvas.toDataURL(this.type, 1); //压缩完毕
-        // console.log()
-        // res(url);
         let image = new Image();
         image.src = url;
         let self = this;
@@ -146,7 +140,6 @@ export default {
           let ctx2 = self.$refs.canvas2.getContext("2d");
           self.$refs.canvas2.width = 120;
           self.$refs.canvas2.height = 120;
-          console.log(self.left, self.top);
           ctx2.drawImage(
             image,
             (window.innerWidth - 120) * 0.5 - self.left,
@@ -159,32 +152,48 @@ export default {
             120
           );
           let src = self.$refs.canvas2.toDataURL(self.type, 1); //压缩完毕
-          self.$refs.canvas2.toBlob(blob => {
-            res({ src: src, blob: blob });
-          });
+          res({src:src,blob:self.b64toBlob(src,self.type)});
         };
       });
+    },
+    b64toBlob(b64Data, contentType, sliceSize) {
+        contentType = contentType || '';
+        sliceSize = sliceSize || 512;
+        let byteCharacters = atob(b64Data.substring(b64Data.indexOf(',') + 1));
+        let byteArrays = [];
+        for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+          let slice = byteCharacters.slice(offset, offset + sliceSize);
+          let byteNumbers = new Array(slice.length);
+          for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+          }
+          let byteArray = new Uint8Array(byteNumbers);
+          byteArrays.push(byteArray);
+        }
+        let blob = new Blob(byteArrays, {type: contentType});
+        return blob;
     },
     nochange() {
       this.change = false;
       //清空内容
+      this.inputshow = true;
       this.$refs.input.value = "";
       console.log("返回");
     },
     touchstart(e) {
       e.preventDefault();
-      this.tx = e.touches[0].clientX - this.left;
-      this.ty = e.touches[0].clientY - this.top;
+      if (e.touches.length === 1) {
+        this.tx = e.touches[0].clientX - this.left;
+        this.ty = e.touches[0].clientY - this.top;
+      }
     },
     touchmove(e) {
-      let w = window.innerWidth;
-      let h = window.innerHeight;
-      let x = e.touches[0].clientX - this.tx;
-      let y = e.touches[0].clientY - this.ty;
-      this._imgmove(x, y);
-
-      if (e.touches.lenght == 2) {
-        console.log("双指缩放");
+      if (e.touches.length === 1) {
+        let w = window.innerWidth;
+        let h = window.innerHeight;
+        let x = e.touches[0].clientX - this.tx;
+        let y = e.touches[0].clientY - this.ty;
+        this._imgmove(x, y);
       }
     },
     _imgmove(left, top) {
@@ -206,7 +215,7 @@ export default {
         window.innerHeight - (window.innerHeight - 120) * 0.5
       ) {
         top =
-          window.innerHeight - (window.innerHeight - 120) * 0.5 - this.width;
+          window.innerHeight - (window.innerHeight - 120) * 0.5 - this.height;
       }
       this.$refs.bimg.style.backgroundPosition = `${left}px ${top}px`;
       this.left = left;
@@ -215,11 +224,17 @@ export default {
     mousewheel(e) {
       let size = e.wheelDelta || e.detail;
       //按原始比方所
-      this.power = this.nativeheight / this.nativewidth;
+      console.log(this.power, size);
       if (size > 0) {
-        this._imgls(1.05 * this.width, 1.05 * this.height);
+        // console.log(this.width,this.height);
+        let height = 1.05 * this.height;
+        let width = height * this.power;
+        // console.log(height,width)
+        this._imgls(height, width);
       } else {
-        this._imgls(0.95 * this.width, 0.95 * this.height);
+        let height = 0.95 * this.height;
+        let width = height * this.power;
+        this._imgls(height, width);
       }
     },
     _imgls(height, width) {
@@ -228,7 +243,7 @@ export default {
         window.innerWidth - (window.innerWidth - 120) * 0.5
       ) {
         width = window.innerWidth - (window.innerWidth - 120) * 0.5 - this.left;
-        height = width * this.power;
+        height = width / this.power;
       }
       if (
         height + this.top <
@@ -236,9 +251,9 @@ export default {
       ) {
         height =
           window.innerHeight - (window.innerHeight - 120) * 0.5 - this.top;
-        width = height / this.power;
+        width = height * this.power;
       }
-      this.$refs.bimg.style.backgroundSize = `${height}px ${width}px`;
+      this.$refs.bimg.style.backgroundSize = `${width}px ${height}px`;
       this.height = height;
       this.width = width;
     },
@@ -250,7 +265,6 @@ export default {
       this.$emit("back");
     },
     chooseimg(e) {
-      console.log("haha");
       let file = this.$refs.input.files[0];
       let reader = new FileReader();
       reader.readAsDataURL(file);
@@ -258,6 +272,7 @@ export default {
       console.log(file);
       this.type = file.type;
       reader.onload = function(event) {
+        self.inputshow = false; 
         console.log("haha");
         let isrc = null;
         isrc = event.target.result;
@@ -268,34 +283,56 @@ export default {
         image.src = isrc;
         image.onload = function() {
           self.img = image;
-          self.nativeheight = image.height > 120 ? image.height : 120;
-          self.nativewidth = image.width > 120 ? image.width : 120;
-
           let w = window.innerWidth;
           let h = window.innerHeight;
+          self.nativeheight = image.height > 120 ? image.height : 120;
+          self.nativewidth = image.width > 120 ? image.width : 120;
+          if (image.height > h) {
+            self.nativeheight = h;
+            self.nativewidth = h * image.width / image.height;
+          }
+          if (self.nativewidth > w) {
+            self.nativewidth = w;
+            self.nativeheight = self.nativewidth * image.height / image.width;
+          }
+          self.power = self.nativewidth / self.nativeheight;
           self.height = self.nativeheight;
           self.width = self.nativewidth;
           self.top = (h - self.nativeheight) * 0.5;
           self.left = (w - self.nativewidth) * 0.5;
-          self.$refs.bimg.style.backgroundsize = `${self.nativeheight}px ${
-            self.nativewidth
+          self.$refs.bimg.style.backgroundSize = `${self.nativewidth}px ${
+            self.nativeheight
           }px`;
           self.$refs.bimg.style.backgroundPosition = `${self.left}px ${
             self.top
           }px`;
+          self.af = new AlloyFinger(self.$refs.bimg, {
+            pinch: function(e) {
+              if (e.scale > 1) {
+                let height = 1.03 * self.height;
+                let width = height * self.power;
+                self._imgls(height, width);
+              }
+              if (e.scale < 1) {
+                let height = 0.97 * self.height;
+                let width = height * self.power;
+                self._imgls(height, width);
+              }
+            }
+          });
         };
+        self.$refs.input.value = "";
       };
       this.change = true;
     },
     ...mapActions(["checklogins"])
-    
   },
   watch: {
     left() {
-      console.log(this.left);
+      // console.log(this.left);
     },
     top() {
-      console.log(this.top);
+      // console.log(this.top);
     }
   },
   components: {
@@ -321,6 +358,7 @@ export default {
   top: 0;
   bottom: 0;
   width: 100%;
+  height: 100%;
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -329,17 +367,14 @@ export default {
   background-color: #fff;
 }
 .tbox {
-  position: absolute;
-  /* top: 50%;
-    left: 50%; */
   width: 120px;
   height: 120px;
-  /* margin-top: -100px;
-    margin-left: -100px; */
   box-sizing: border-box;
   border: 1px solid rgb(102, 102, 102);
   box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
   background: none repeat scroll 0% 0% transparent;
+  /* top: 50%; */
+  /* left: 50%; */
 }
 .bottomboxs {
   width: 70%;
@@ -358,6 +393,7 @@ export default {
 }
 .imgprev {
   transform: scale(1.8);
+  margin-top: 60px;
 }
 .imgupdata {
   position: fixed;
@@ -368,16 +404,20 @@ export default {
 }
 .choose {
   display: flex;
-  justify-content: space-evenly;
+  /* justify-content: space-around; */
   align-items: center;
   flex-direction: column;
   width: 100%;
   height: 100%;
+  position: relative;
 }
 .choosebox {
+  /* margin-top: 40px; */
+  position: absolute;
+  bottom: 110px;
   width: 100%;
   display: flex;
-  position: relative;
+  /* position: relative; */
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -395,7 +435,7 @@ export default {
   display: inline-block;
   width: 50%;
 }
-.operate {
+.operate1 {
   position: absolute;
   height: 100px;
   display: flex;
@@ -403,5 +443,17 @@ export default {
   bottom: 0;
   align-items: center;
   justify-content: center;
+}
+.operate2 {
+  position: absolute;
+  height: 100px;
+  display: flex;
+  width: 100%;
+  bottom: 60px;
+  align-items: center;
+  justify-content: center;
+}
+.none {
+  display: none;
 }
 </style>

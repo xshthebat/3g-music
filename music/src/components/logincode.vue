@@ -6,7 +6,7 @@
         <!-- 中部 -->
         <div class="login-middle">
             <div class="login-box">
-                  <inputbox placeholder="请输入7位邮箱验证码" :maxlenth="7" @query="getcodes" v-show="vercode"></inputbox>
+                  <inputbox placeholder="请输入4位邮箱验证码" :maxlenth="4" @query="getcodes" v-show="vercode" ></inputbox>
                   <password placeholder="请输入密码"  @query="getpassword" :show="false"  v-show="!vercode"></password>
                   <vercodes v-show="!vercode" :vercodeplaceholder="`请输入验证码`" ref="vercodes" @vercodes="getinputvercode" @errs="vercodeerrr" :time="60"></vercodes>
                   <div class="changemode" @click="change">{{loginmode}}</div>
@@ -91,8 +91,8 @@ export default {
       console.log(err);
     },
     sumbit() {
-      if (this.codes.length != 7 && this.vercode) {
-        this.confirmtext = "验证码不足7位";
+      if (this.codes.length != 4 && this.vercode) {
+        this.confirmtext = "验证码不足4位";
         this.$refs.confirm.show();
         return;
       }
@@ -101,15 +101,15 @@ export default {
         login("codes", this.codes).then(res => {
           this.submitit = false;
           if (res.err) {
-            this.confirmtext = res.errtype;
-            console.log("vuex");
+            this.confirmtext = '登陆失败，请重试';
             this.$refs.confirm.show();
           } else {
             this.confirmtext = `登陆成功`;
             //处理数据加入到vuex中
             console.log("vuex");
-            this.logins(res.data);
-            this.$refs.confirm.show();
+            this.checklogins().then(()=>{
+              this.$refs.confirm.show();
+            });
           }
         });
       } else {
@@ -121,14 +121,17 @@ export default {
           } else {
             this.confirmtext = `登陆成功`;
              console.log("vuex");
-            this.logins(res.data);
-            this.$refs.confirm.show();
+            this.checklogins().then(()=>{
+              this.$refs.confirm.show();
+            });
           }
         });
       }
     },
     loginsuccess() {
-      this.$router.push('/person');
+      if(this.login){
+        this.$router.push('/person');
+      }
     },
     change() {
       this.vercode = !this.vercode;
@@ -136,7 +139,7 @@ export default {
       if (!this.vercode) {
         this.$refs.vercodes.getvercodes();
       }
-      if (this.vercode && this.codes.length === 7) {
+      if (this.vercode && this.codes.length === 4) {
         this.disabled = false;
         this.text = "";
       }
@@ -145,16 +148,16 @@ export default {
         this.text = "";
       }
     },
-    ...mapActions(["logins"])
+    ...mapActions(["checklogins"])
   },
   watch: {
     codes(newval) {
-      if (newval.length === 7 && newval) {
+      if (newval.length === 4 && newval) {
         this.disabled = false;
         this.text = "";
       } else {
         this.disabled = true;
-        this.text = "邮箱验证码不足7位";
+        this.text = "邮箱验证码不足4位";
       }
     },
     password(newval) {

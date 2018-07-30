@@ -8,11 +8,12 @@ export function getemailcodes(email, vercode) {
         vercode: vercode
     }, { param: 'callback' });
 }
-export function checkemailcodes(codes, password) {
+export function checkemailcodes(codes, password, datas) {
     const url = debug ? 'http://localhost:8881/api/checkcodes' : 'http://123.207.138.78:8881/api/checkcodes';
     return jsonp(url, {
         password: password,
-        codes: codes
+        codes: codes,
+        datas: datas
     }, { param: 'callback' });
 }
 export function login(codetype, code, vercode) {

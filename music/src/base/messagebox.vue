@@ -2,7 +2,9 @@
     <div class="messagebox-wrap" :class="{'acolor':color}">
     <div class="messagebox" @touchstart="changecolor" @touchend="click" >
         <p class="messagename">{{messagename}}</p>
-        <p class="messagemain">{{messagemain}}</p>
+        <div class="main-wrapper">
+            <p class="messagemain">{{messagemain}}</p>
+        </div>
         <i class="messsagechange"></i>
     </div>
     </div>
@@ -93,5 +95,8 @@ export default {
   background-color: #000;
   -webkit-transform: scaleY(0.3);
   transform: scaleY(0.3);
+}
+.main-wrapper{
+    height:16px;
 }
 </style>

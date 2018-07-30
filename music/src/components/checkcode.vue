@@ -6,7 +6,7 @@
         <!-- 中部 -->
         <div class="login-middle">
             <div class="login-box">
-                  <inputbox placeholder="请输入7位邮箱验证码" :maxlenth="7" @query="getcodes"></inputbox>
+                  <inputbox placeholder="请输入4位邮箱验证码" :maxlenth="4" @query="getcodes"></inputbox>
                   <password placeholder="请输入密码,至少6位"  @query="getpassword" :show="true"></password>
                   <password placeholder="请再次输入密码"  @query="getpasswordaga"></password>
             </div>
@@ -22,7 +22,7 @@
     </div>
 </template>
 <script>
-import { checkemailcodes, login } from "../api/lgoin.js";
+import { checkemailcodes} from "../api/lgoin.js";
 import confirm from "../base/confirm";
 import inputbox from "../base/inputbox";
 import buttombox from "../base/buttombox";
@@ -30,6 +30,7 @@ import loading from "../base/loading";
 import password from "../base/password";
 import { signupMode } from "../common/js/config.js";
 import { mapGetters, mapMutations, mapActions } from "vuex";
+import { distinct } from "../common/js/util.js";
 export default {
   data() {
     return {
@@ -72,32 +73,53 @@ export default {
       this.passwordagin = newval;
     },
     sumbit() {
-      if (this.codes.length != 7) {
-        this.confirmtext = "验证码不足7位";
+      if (this.codes.length != 4) {
+        this.confirmtext = "验证码不足4位";
         this.$refs.confirm.show();
         return;
       }
-      // console.log(this.userHistory,this.likelist);
-      // return;
       this.confirmtext = "是否同步本地信息";
       this.$refs.confirm.show();
       //这里提示是否保存本地历史
     },
     addsuccess() {
       if (this.confirmtext === "是否同步本地信息") {
-        console.log("上传本地，本地不清楚");
-        console.log(this.userHistory,this.likelist);
+        // console.log(this.userHistory, this.likelist);
+        //需要合并 this.userHistory和 this.likelist
+        let data = {
+          likelist: JSON.parse(JSON.stringify(this.likelist)),
+          userHistory: JSON.parse(JSON.stringify(this.userHistory))
+        };
+        data.likelist.forEach(obj => {
+          // delete obj["image"];
+          delete obj["filename"];
+          delete obj["url"];
+           if (obj['lyric']) {
+            delete obj['lyric'];
+        }
+        });
+        data.userHistory.forEach(obj => {
+          // delete obj["image"];
+          delete obj["filename"];
+          delete obj["url"];
+           if (obj['lyric']) {
+            delete obj['lyric'];
+        }
+        });
+        console.log(data, typeof data.likelist);
+        let likedata = JSON.stringify(data);
         this.submitit = true;
-        checkemailcodes(this.codes, this.password).then(res => {
+        checkemailcodes(this.codes, this.password, likedata).then(res => {
           this.submitit = false;
           console.log(res);
           if (res.err) {
-            this.confirmtext = res.errtype;
+            this.confirmtext = '注册失败,请重试';
             this.$refs.confirm.show();
           } else {
-            this.confirmtext = res.data;
-            this.checklogins();
-            this.$refs.confirm.show();
+            this.confirmtext = '注册成功';
+            this.checklogins().then(()=>{
+                this.$refs.confirm.show();
+            });
           }
         });
         return;
@@ -109,20 +131,24 @@ export default {
       });
     },
     notsave() {
-      console.log('haha')
+      console.log("haha");
       if (this.confirmtext === "是否同步本地信息") {
         this.submitit = true;
-        console.log("不同步,本地清除");
-        checkemailcodes(this.codes, this.password).then(res => {
+        checkemailcodes(this.codes, this.password,  JSON.stringify({
+          likelist: [],
+          userHistory: []
+        })).then(res => {
           this.submitit = false;
           console.log(res);
           if (res.err) {
-            this.confirmtext = res.errtype;
+            this.confirmtext = '注册失败,请重试';
             this.$refs.confirm.show();
           } else {
-            this.confirmtext = res.data;
-            this.checklogins();
-            this.$refs.confirm.show();
+            this.confirmtext = '注册成功';
+            this.checklogins().then(()=>{
+                this.$refs.confirm.show();
+            });
+
           }
         });
         return;

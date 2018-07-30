@@ -40,3 +40,26 @@ export function distinct(arr) {
     // console.log(obj);
     return ret
 }
+export function normllizedata({ likelist, userHistory }) {
+    let data = {
+        likelist: JSON.parse(JSON.stringify(likelist)),
+        userHistory: JSON.parse(JSON.stringify(userHistory))
+    };
+    data.likelist.forEach(obj => {
+        // delete obj["image"];
+        delete obj["filename"];
+        delete obj["url"];
+        if (obj['lyric']) {
+            delete obj['lyric'];
+        }
+    });
+    data.userHistory.forEach(obj => {
+        // delete obj["image"];
+        delete obj["filename"];
+        delete obj["url"];
+        if (obj['lyric']) {
+            delete obj['lyric'];
+        }
+    });
+    return JSON.stringify(data);
+}
