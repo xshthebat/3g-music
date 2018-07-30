@@ -148,8 +148,6 @@ music
 <img src="https://github.com/xshthebat/gitimg/blob/master/BZZ%5D%24L35NF_~KM)0%60%24~YRU7.png" width="400" height="700"></img>
 <img src="https://github.com/xshthebat/gitimg/blob/master/%7B4%5DQDB)0V(QM_R4~BFNZIKI.png" width="400" height="700"></img>
 
-## 项目路径
-
 ## 免责声明 
 歌曲来自qq音乐接口 本app不做任何商业用途只做练习使用,侵权必删。
 ## License 
