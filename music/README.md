@@ -1,21 +1,22 @@
-# 3gmusic
-
-> music
-
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
+# 3gmusic移动端应用
+## 开发初衷
+因为刚学vue,没有项目来练手,故在网上看到有些music的项目,感觉非常适合用来练习,故自己写了一个,并且加入了一些新东西,并且修改了在移动端上的bug.因为第一次写一个完整的项目,还有不足...
+## 技术栈
+1. Vue2mvvm框架
+2. Vuex 状态管理
+3. vue-cli官方脚手架
+4. ES6
+5. axios，jsonp网络请求
+6. flex布局
+7. alloyginger fastclick 移动端触屏事件
+## 项目运行
 ```
+git clone https://github.com/xshthebat/3g-music
+cd music
+npm install //cnpm install
+npm run dev //运行
+npm run build //打包
+```
+配合后台使用更佳
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+项目预览图
